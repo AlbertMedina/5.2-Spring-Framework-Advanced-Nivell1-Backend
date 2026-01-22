@@ -11,7 +11,11 @@ public interface RentalRepository {
 
     List<Rental> findAll();
 
-    List<Rental> findByUser(Long userId);
+    List<Rental> findAllByUser(Long userId);
+
+    List<Rental> findAllByMovie(Long userId);
+
+    boolean existsByUserIdAndMovieId(Long userId, Long movieId);
 
     Rental save(Rental rental);
 

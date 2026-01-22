@@ -9,7 +9,9 @@ public interface ReviewRepository {
 
     Optional<Review> findById(Long id);
 
-    List<Review> findByMovie(Long movieId);
+    List<Review> findAllByMovie(Long movieId);
+
+    boolean existsByUserIdAndMovieId(Long userId, Long movieId);
 
     Review save(Review review);
 
