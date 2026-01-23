@@ -9,12 +9,9 @@ public interface MovieRepository {
 
     Optional<Movie> findById(Long id);
 
-    List<Movie> findAll();
-
-    // TODO: define filters
-    List<Movie> findFiltered();
+    List<Movie> findAll(int page, int amount, String genre, boolean onlyAvailable);
 
     Movie save(Movie movie);
 
-    void deleteById(Long id);
+    void delete(Movie movie);
 }

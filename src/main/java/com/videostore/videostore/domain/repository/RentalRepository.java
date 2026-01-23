@@ -17,6 +17,8 @@ public interface RentalRepository {
 
     boolean existsByUserIdAndMovieId(Long userId, Long movieId);
 
+    int activeRentalsByMovie(Long movieId);
+
     Rental save(Rental rental);
 
     void deleteById(Long id);
