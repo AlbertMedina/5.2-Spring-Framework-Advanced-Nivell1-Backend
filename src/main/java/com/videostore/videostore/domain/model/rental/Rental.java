@@ -1,14 +1,17 @@
-package com.videostore.videostore.domain.model;
+package com.videostore.videostore.domain.model.rental;
+
+import com.videostore.videostore.domain.model.movie.Movie;
+import com.videostore.videostore.domain.model.user.User;
 
 import java.time.LocalDate;
 
-public class Favourite {
+public class Rental {
 
     private final User user;
     private final Movie movie;
     private final LocalDate date;
 
-    public Favourite(User user, Movie movie, LocalDate date) {
+    public Rental(User user, Movie movie, LocalDate date) {
         this.user = user;
         this.movie = movie;
         this.date = date;

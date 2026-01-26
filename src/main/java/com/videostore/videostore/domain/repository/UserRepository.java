@@ -1,6 +1,6 @@
 package com.videostore.videostore.domain.repository;
 
-import com.videostore.videostore.domain.model.User;
+import com.videostore.videostore.domain.model.user.User;
 
 import java.util.List;
 import java.util.Optional;

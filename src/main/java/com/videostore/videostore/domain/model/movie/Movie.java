@@ -1,4 +1,4 @@
-package com.videostore.videostore.domain.model;
+package com.videostore.videostore.domain.model.movie;
 
 public class Movie {
 

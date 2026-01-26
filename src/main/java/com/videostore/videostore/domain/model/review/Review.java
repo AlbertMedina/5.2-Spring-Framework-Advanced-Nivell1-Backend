@@ -1,4 +1,7 @@
-package com.videostore.videostore.domain.model;
+package com.videostore.videostore.domain.model.review;
+
+import com.videostore.videostore.domain.model.movie.Movie;
+import com.videostore.videostore.domain.model.user.User;
 
 public class Review {
 

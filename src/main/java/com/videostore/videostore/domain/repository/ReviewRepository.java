@@ -1,6 +1,6 @@
 package com.videostore.videostore.domain.repository;
 
-import com.videostore.videostore.domain.model.Review;
+import com.videostore.videostore.domain.model.review.Review;
 
 import java.util.List;
 import java.util.Optional;

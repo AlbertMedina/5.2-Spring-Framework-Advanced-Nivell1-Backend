@@ -1,9 +1,9 @@
-package com.videostore.videostore.domain.model;
+package com.videostore.videostore.domain.model.user;
 
-import com.videostore.videostore.domain.model.valueobject.Email;
-import com.videostore.videostore.domain.model.valueobject.Name;
-import com.videostore.videostore.domain.model.valueobject.Surname;
-import com.videostore.videostore.domain.model.valueobject.UserName;
+import com.videostore.videostore.domain.model.user.valueobject.Email;
+import com.videostore.videostore.domain.model.user.valueobject.Name;
+import com.videostore.videostore.domain.model.user.valueobject.Surname;
+import com.videostore.videostore.domain.model.user.valueobject.UserName;
 
 public class User {
 

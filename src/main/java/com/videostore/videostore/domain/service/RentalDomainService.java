@@ -1,7 +1,7 @@
 package com.videostore.videostore.domain.service;
 
 import com.videostore.videostore.domain.exception.BusinessRuleViolationException;
-import com.videostore.videostore.domain.model.Movie;
+import com.videostore.videostore.domain.model.movie.Movie;
 
 public class RentalDomainService {
 

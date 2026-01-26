@@ -1,4 +1,4 @@
-package com.videostore.videostore.domain.model.valueobject;
+package com.videostore.videostore.domain.model.user.valueobject;
 
 public record Email(String email) {
     public Email {
