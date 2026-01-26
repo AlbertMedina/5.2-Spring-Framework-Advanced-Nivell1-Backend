@@ -11,7 +11,7 @@ public interface MovieRepository {
 
     List<Movie> findAll(int page, int amount, String genre, boolean onlyAvailable);
 
-    Movie save(Movie movie);
+    Movie addMovie(Movie movie);
 
-    void delete(Movie movie);
+    void removeMovie(Movie movie);
 }

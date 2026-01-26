@@ -24,6 +24,6 @@ public class RemoveMovieUseCase {
             throw new BusinessRuleViolationException("Cannot remove movie with active rentals");
         }
 
-        movieRepository.delete(movie);
+        movieRepository.removeMovie(movie);
     }
 }

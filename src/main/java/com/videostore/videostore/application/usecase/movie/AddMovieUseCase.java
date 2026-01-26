@@ -24,6 +24,6 @@ public class AddMovieUseCase {
                 new NumberOfCopies(command.getNumberOfCopies())
         );
 
-        return movieRepository.save(movie);
+        return movieRepository.addMovie(movie);
     }
 }

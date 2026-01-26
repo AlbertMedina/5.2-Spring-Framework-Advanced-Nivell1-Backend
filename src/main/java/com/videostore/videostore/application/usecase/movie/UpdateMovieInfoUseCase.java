@@ -24,6 +24,6 @@ public class UpdateMovieInfoUseCase {
         movie.setDirector(new Director(command.getDirector()));
         movie.setSynopsis(new Synopsis(command.getSynopsis()));
 
-        return movieRepository.save(movie);
+        return movieRepository.addMovie(movie);
     }
 }
