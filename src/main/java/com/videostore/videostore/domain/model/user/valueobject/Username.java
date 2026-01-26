@@ -1,8 +1,8 @@
 package com.videostore.videostore.domain.model.user.valueobject;
 
-public record UserName(String value) {
+public record Username(String value) {
 
-    public UserName {
+    public Username {
         if (value == null || value.isBlank()) {
             throw new IllegalArgumentException("Username cannot be empty");
         }
