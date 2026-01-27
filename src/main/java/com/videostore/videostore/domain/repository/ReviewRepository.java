@@ -7,13 +7,13 @@ import java.util.Optional;
 
 public interface ReviewRepository {
 
-    Optional<Review> findById(Long id);
+    Optional<Review> findByUserIdAndMovieId(Long userId, Long movieId);
 
     List<Review> findAllByMovie(Long movieId);
 
     boolean existsByUserIdAndMovieId(Long userId, Long movieId);
 
-    Review save(Review review);
+    Review addReview(Review review);
 
-    void deleteById(Long id);
+    void removeReview(Review review);
 }
