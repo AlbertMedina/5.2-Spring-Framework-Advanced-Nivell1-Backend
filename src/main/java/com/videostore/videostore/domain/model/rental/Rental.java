@@ -27,4 +27,8 @@ public class Rental {
     public RentalDate getRentalDate() {
         return rentalDate;
     }
+
+    public static Rental create(User user, Movie movie, RentalDate rentalDate) {
+        return new Rental(user, movie, rentalDate);
+    }
 }

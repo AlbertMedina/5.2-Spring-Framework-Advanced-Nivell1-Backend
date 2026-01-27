@@ -41,7 +41,15 @@ public class AddReviewUseCase {
 
         validateReview(userId, movieId);
 
-        return reviewRepository.addReview(new Review(user, movie, new Rating(command.rating()), new Comment(command.comment()), new ReviewDate(LocalDate.now())));
+        Review review = Review.create(
+                user,
+                movie,
+                new Rating(command.rating()),
+                new Comment(command.comment()),
+                new ReviewDate(LocalDate.now())
+        );
+
+        return reviewRepository.addReview(review);
     }
 
     private void validateReview(Long userId, Long movieId) {

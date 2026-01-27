@@ -36,7 +36,13 @@ public class RentMovieUseCase {
 
         validateRental(userId, movieId, movie);
 
-        return rentalRepository.addRental(new Rental(user, movie, new RentalDate(LocalDate.now())));
+        Rental rental = Rental.create(
+                user,
+                movie,
+                new RentalDate(LocalDate.now())
+        );
+
+        return rentalRepository.addRental(rental);
     }
 
     private void validateRental(Long userId, Long movieId, Movie movie) {

@@ -41,4 +41,8 @@ public class Review {
     public ReviewDate getReviewDate() {
         return reviewDate;
     }
+
+    public static Review create(User user, Movie movie, Rating rating, Comment comment, ReviewDate reviewDate) {
+        return new Review(user, movie, rating, comment, reviewDate);
+    }
 }

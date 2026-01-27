@@ -27,4 +27,8 @@ public class Favourite {
     public FavouriteDate getFavouriteDate() {
         return favouriteDate;
     }
+
+    public static Favourite create(User user, Movie movie, FavouriteDate favouriteDate) {
+        return new Favourite(user, movie, favouriteDate);
+    }
 }

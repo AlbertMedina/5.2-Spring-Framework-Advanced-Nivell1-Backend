@@ -36,7 +36,13 @@ public class AddFavouriteUseCase {
 
         validateFavourite(userId, movieId);
 
-        return favouriteRepository.addFavourite(new Favourite(user, movie, new FavouriteDate(LocalDate.now())));
+        Favourite favourite = Favourite.create(
+                user,
+                movie,
+                new FavouriteDate(LocalDate.now())
+        );
+
+        return favouriteRepository.addFavourite(favourite);
     }
 
     private void validateFavourite(Long userId, Long movieId) {

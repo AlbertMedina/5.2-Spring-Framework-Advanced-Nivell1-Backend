@@ -1,6 +1,5 @@
 package com.videostore.videostore.domain.model.user;
 
-import com.videostore.videostore.domain.model.movie.valueobject.*;
 import com.videostore.videostore.domain.model.user.valueobject.*;
 
 public class User {
