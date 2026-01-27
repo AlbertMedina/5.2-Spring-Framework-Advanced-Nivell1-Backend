@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface RentalRepository {
-    
+
     Optional<Rental> findByUserIdAndMovieId(Long userId, Long movieId);
 
     boolean existsByUserIdAndMovieId(Long userId, Long movieId);
@@ -20,4 +20,6 @@ public interface RentalRepository {
     Rental addRental(Rental rental);
 
     void returnRental(Rental rental);
+
+    void returnAllByUser(Long userId);
 }
