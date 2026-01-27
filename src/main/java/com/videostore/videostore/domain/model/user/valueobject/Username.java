@@ -8,7 +8,7 @@ public record Username(String value) {
         }
 
         if (value.matches(".*\\s+.*")) {
-            throw new IllegalArgumentException("Username cannot contain whitespace");
+            throw new IllegalArgumentException("Username cannot contain whitespaces");
         }
 
         if (!value.matches("^[A-Za-z0-9_-]+$")) {
