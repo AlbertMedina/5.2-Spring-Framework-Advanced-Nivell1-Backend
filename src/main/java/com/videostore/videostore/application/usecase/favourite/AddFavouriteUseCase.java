@@ -9,9 +9,12 @@ import com.videostore.videostore.domain.model.user.User;
 import com.videostore.videostore.domain.repository.FavouriteRepository;
 import com.videostore.videostore.domain.repository.MovieRepository;
 import com.videostore.videostore.domain.repository.UserRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 
+@Service
 public class AddFavouriteUseCase {
 
     private final FavouriteRepository favouriteRepository;
@@ -24,6 +27,7 @@ public class AddFavouriteUseCase {
         this.movieRepository = movieRepository;
     }
 
+    @Transactional
     public Favourite execute(AddFavouriteCommand addFavouriteCommand) {
         Long userId = addFavouriteCommand.userId();
         Long movieId = addFavouriteCommand.movieId();

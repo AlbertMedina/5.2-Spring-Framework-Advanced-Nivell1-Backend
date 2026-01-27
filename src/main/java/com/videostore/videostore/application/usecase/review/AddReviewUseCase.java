@@ -12,9 +12,12 @@ import com.videostore.videostore.domain.repository.MovieRepository;
 import com.videostore.videostore.domain.repository.RentalRepository;
 import com.videostore.videostore.domain.repository.ReviewRepository;
 import com.videostore.videostore.domain.repository.UserRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 
+@Service
 public class AddReviewUseCase {
 
     private final ReviewRepository reviewRepository;
@@ -29,6 +32,7 @@ public class AddReviewUseCase {
         this.rentalRepository = rentalRepository;
     }
 
+    @Transactional
     public Review execute(AddReviewCommand command) {
         Long userId = command.userId();
         Long movieId = command.movieId();

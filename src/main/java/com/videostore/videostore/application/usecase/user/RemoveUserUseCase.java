@@ -4,7 +4,10 @@ import com.videostore.videostore.domain.exception.UserNotFoundException;
 import com.videostore.videostore.domain.model.user.User;
 import com.videostore.videostore.domain.repository.RentalRepository;
 import com.videostore.videostore.domain.repository.UserRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+@Service
 public class RemoveUserUseCase {
 
     private final UserRepository userRepository;
@@ -15,6 +18,7 @@ public class RemoveUserUseCase {
         this.rentalRepository = rentalRepository;
     }
 
+    @Transactional
     public void execute(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));

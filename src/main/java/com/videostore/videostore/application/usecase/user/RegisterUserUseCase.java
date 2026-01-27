@@ -6,7 +6,10 @@ import com.videostore.videostore.domain.exception.UsernameAlreadyExistsException
 import com.videostore.videostore.domain.model.user.User;
 import com.videostore.videostore.domain.model.user.valueobject.*;
 import com.videostore.videostore.domain.repository.UserRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+@Service
 public class RegisterUserUseCase {
 
     private final UserRepository userRepository;
@@ -15,6 +18,7 @@ public class RegisterUserUseCase {
         this.userRepository = userRepository;
     }
 
+    @Transactional
     public User execute(RegisterUserCommand command) {
         validateRegisterUser(command.username(), command.email());
 

@@ -5,7 +5,10 @@ import com.videostore.videostore.domain.exception.MovieNotFoundException;
 import com.videostore.videostore.domain.model.movie.Movie;
 import com.videostore.videostore.domain.model.movie.valueobject.*;
 import com.videostore.videostore.domain.repository.MovieRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+@Service
 public class UpdateMovieInfoUseCase {
 
     private final MovieRepository movieRepository;
@@ -14,6 +17,7 @@ public class UpdateMovieInfoUseCase {
         this.movieRepository = movieRepository;
     }
 
+    @Transactional
     public Movie execute(Long id, UpdateMovieInfoCommand command) {
         Movie movie = movieRepository.findById(id)
                 .orElseThrow(() -> new MovieNotFoundException(id));
