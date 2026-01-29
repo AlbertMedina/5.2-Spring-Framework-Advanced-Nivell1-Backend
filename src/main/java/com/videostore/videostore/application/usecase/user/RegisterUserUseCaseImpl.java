@@ -22,27 +22,30 @@ public class RegisterUserUseCaseImpl implements RegisterUserUseCase {
     @Override
     @Transactional
     public User execute(RegisterUserCommand command) {
-        validateRegisterUser(command.username(), command.email());
+        Username username = new Username(command.username());
+        Email email = new Email(command.email());
+
+        validateRegisterUser(username, email);
 
         User user = User.create(
                 null,
                 new Name(command.name()),
                 new Surname(command.surname()),
-                new Username(command.username()),
-                new Email(command.email()),
+                username,
+                email,
                 new Password(command.password())
         );
 
         return userRepository.registerUser(user);
     }
 
-    private void validateRegisterUser(String username, String email) {
+    private void validateRegisterUser(Username username, Email email) {
         if (userRepository.existsByUsername(username)) {
-            throw new UsernameAlreadyExistsException(username);
+            throw new UsernameAlreadyExistsException(username.value());
         }
 
         if (userRepository.existsByEmail(email)) {
-            throw new EmailAlreadyExistsException(email);
+            throw new EmailAlreadyExistsException(email.value());
         }
     }
 }

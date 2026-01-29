@@ -1,7 +1,9 @@
 package com.videostore.videostore.infrastructure.persistence.adapter;
 
 import com.videostore.videostore.domain.model.user.User;
+import com.videostore.videostore.domain.model.user.valueobject.Email;
 import com.videostore.videostore.domain.model.user.valueobject.UserId;
+import com.videostore.videostore.domain.model.user.valueobject.Username;
 import com.videostore.videostore.domain.repository.UserRepository;
 import com.videostore.videostore.infrastructure.persistence.entity.UserEntity;
 import com.videostore.videostore.infrastructure.persistence.mapper.UserMapper;
@@ -26,25 +28,25 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public Optional<User> findByUsername(String username) {
-        return userRepositoryJPA.findByUsername(username)
+    public Optional<User> findByUsername(Username username) {
+        return userRepositoryJPA.findByUsername(username.value())
                 .map(UserMapper::toDomain);
     }
 
     @Override
-    public boolean existsByUsername(String username) {
-        return userRepositoryJPA.existsByUsername(username);
+    public boolean existsByUsername(Username username) {
+        return userRepositoryJPA.existsByUsername(username.value());
     }
 
     @Override
-    public Optional<User> findByEmail(String email) {
-        return userRepositoryJPA.findByEmail(email)
+    public Optional<User> findByEmail(Email email) {
+        return userRepositoryJPA.findByEmail(email.value())
                 .map(UserMapper::toDomain);
     }
 
     @Override
-    public boolean existsByEmail(String email) {
-        return userRepositoryJPA.existsByEmail(email);
+    public boolean existsByEmail(Email email) {
+        return userRepositoryJPA.existsByEmail(email.value());
     }
 
     @Override
