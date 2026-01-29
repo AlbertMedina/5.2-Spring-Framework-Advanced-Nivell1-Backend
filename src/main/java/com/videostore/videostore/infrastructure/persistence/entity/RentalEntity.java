@@ -1,4 +1,4 @@
-package com.videostore.videostore.infrastructure.persistance.entity;
+package com.videostore.videostore.infrastructure.persistence.entity;
 
 import jakarta.persistence.*;
 
