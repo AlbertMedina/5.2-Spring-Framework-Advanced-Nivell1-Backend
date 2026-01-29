@@ -1,12 +1,14 @@
 package com.videostore.videostore.application.query.movie;
 
+import com.videostore.videostore.domain.model.movie.MovieSortBy;
+
 public record GetAllMoviesQuery(
         int page,
         int amount,
         String genre,
         boolean onlyAvailable,
         String title,
-        String sortBy,
+        MovieSortBy sortBy,
         boolean ascending
 ) {
 }

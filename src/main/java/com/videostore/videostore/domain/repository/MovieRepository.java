@@ -1,6 +1,7 @@
 package com.videostore.videostore.domain.repository;
 
 import com.videostore.videostore.domain.model.movie.Movie;
+import com.videostore.videostore.domain.model.movie.MovieSortBy;
 import com.videostore.videostore.domain.model.movie.valueobject.MovieId;
 
 import java.util.List;
@@ -12,7 +13,7 @@ public interface MovieRepository {
 
     boolean existsById(MovieId id);
 
-    List<Movie> findAll(int page, int amount, String genre, boolean onlyAvailable, String title, String sortBy, boolean ascending);
+    List<Movie> findAll(int page, int amount, String genre, boolean onlyAvailable, String title, MovieSortBy sortBy, boolean ascending);
 
     Movie addMovie(Movie movie);
 

@@ -1,6 +1,7 @@
 package com.videostore.videostore.infrastructure.persistence.adapter;
 
 import com.videostore.videostore.domain.model.movie.Movie;
+import com.videostore.videostore.domain.model.movie.MovieSortBy;
 import com.videostore.videostore.domain.model.movie.valueobject.MovieId;
 import com.videostore.videostore.domain.repository.MovieRepository;
 import com.videostore.videostore.infrastructure.persistence.entity.MovieEntity;
@@ -9,7 +10,6 @@ import com.videostore.videostore.infrastructure.persistence.repository.MovieRepo
 import com.videostore.videostore.infrastructure.persistence.specification.MovieSpecifications;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.List;
@@ -35,17 +35,13 @@ public class MovieRepositoryImpl implements MovieRepository {
     }
 
     @Override
-    public List<Movie> findAll(int page, int amount, String genre, boolean onlyAvailable, String title, String sortBy, boolean ascending) {
+    public List<Movie> findAll(int page, int amount, String genre, boolean onlyAvailable, String title, MovieSortBy sortBy, boolean ascending) {
         Specification<MovieEntity> spec = MovieSpecifications.genreEquals(genre)
                 .and(MovieSpecifications.titleContains(title))
-                .and(MovieSpecifications.onlyAvailable(onlyAvailable));
+                .and(MovieSpecifications.onlyAvailable(onlyAvailable))
+                .and(MovieSpecifications.applySorting(sortBy, ascending));
 
-        Sort sort = Sort.unsorted();
-        if (sortBy != null && !sortBy.isBlank()) {
-            sort = ascending ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
-        }
-
-        Pageable pageable = PageRequest.of(page, amount, sort);
+        Pageable pageable = PageRequest.of(page, amount);
 
         return movieRepositoryJPA.findAll(spec, pageable)
                 .stream()

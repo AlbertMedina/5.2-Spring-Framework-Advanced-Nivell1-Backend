@@ -21,7 +21,8 @@ public class GetAllMoviesUseCaseImpl implements GetAllMoviesUseCase {
     @Override
     @Transactional(readOnly = true)
     public List<Movie> execute(GetAllMoviesQuery getAllMoviesQuery) {
-        return movieRepository.findAll(getAllMoviesQuery.page(),
+        return movieRepository.findAll(
+                getAllMoviesQuery.page(),
                 getAllMoviesQuery.amount(),
                 getAllMoviesQuery.genre(),
                 getAllMoviesQuery.onlyAvailable(),
