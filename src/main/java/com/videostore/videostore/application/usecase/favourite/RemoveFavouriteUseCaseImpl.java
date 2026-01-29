@@ -25,6 +25,6 @@ public class RemoveFavouriteUseCaseImpl implements RemoveFavouriteUseCase {
         Favourite favourite = favouriteRepository.findByUserIdAndMovieId(new UserId(command.userId()), new MovieId(command.movieId()))
                 .orElseThrow(() -> new FavouriteNotFoundException("The user cannot remove a movie from favourites if it is not marked as a favourites"));
 
-        favouriteRepository.removeFavourite(favourite);
+        favouriteRepository.removeFavourite(favourite.getId());
     }
 }

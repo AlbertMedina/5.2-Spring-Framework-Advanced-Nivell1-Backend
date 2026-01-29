@@ -1,6 +1,7 @@
 package com.videostore.videostore.domain.repository;
 
 import com.videostore.videostore.domain.model.favourite.Favourite;
+import com.videostore.videostore.domain.model.favourite.valueobject.FavouriteId;
 import com.videostore.videostore.domain.model.movie.valueobject.MovieId;
 import com.videostore.videostore.domain.model.user.valueobject.UserId;
 
@@ -17,5 +18,5 @@ public interface FavouriteRepository {
 
     Favourite addFavourite(Favourite favourite);
 
-    void removeFavourite(Favourite favourite);
+    void removeFavourite(FavouriteId favouriteId);
 }

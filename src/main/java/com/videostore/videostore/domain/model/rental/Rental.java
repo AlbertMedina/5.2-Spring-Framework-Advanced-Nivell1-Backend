@@ -7,20 +7,20 @@ import com.videostore.videostore.domain.model.user.valueobject.UserId;
 
 public class Rental {
 
-    private final RentalId rentalId;
+    private final RentalId id;
     private final UserId userId;
     private final MovieId movieId;
     private final RentalDate rentalDate;
 
-    public Rental(RentalId rentalId, UserId userId, MovieId movieId, RentalDate rentalDate) {
-        this.rentalId = rentalId;
+    public Rental(RentalId id, UserId userId, MovieId movieId, RentalDate rentalDate) {
+        this.id = id;
         this.userId = userId;
         this.movieId = movieId;
         this.rentalDate = rentalDate;
     }
 
-    public RentalId getRentalId() {
-        return rentalId;
+    public RentalId getId() {
+        return id;
     }
 
     public UserId getUserId() {
@@ -35,7 +35,7 @@ public class Rental {
         return rentalDate;
     }
 
-    public static Rental create(RentalId rentalId, UserId userId, MovieId movieId, RentalDate rentalDate) {
-        return new Rental(rentalId, userId, movieId, rentalDate);
+    public static Rental create(RentalId id, UserId userId, MovieId movieId, RentalDate rentalDate) {
+        return new Rental(id, userId, movieId, rentalDate);
     }
 }

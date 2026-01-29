@@ -3,6 +3,7 @@ package com.videostore.videostore.infrastructure.persistence.adapter;
 import com.videostore.videostore.domain.exception.MovieNotFoundException;
 import com.videostore.videostore.domain.exception.UserNotFoundException;
 import com.videostore.videostore.domain.model.favourite.Favourite;
+import com.videostore.videostore.domain.model.favourite.valueobject.FavouriteId;
 import com.videostore.videostore.domain.model.movie.valueobject.MovieId;
 import com.videostore.videostore.domain.model.user.valueobject.UserId;
 import com.videostore.videostore.domain.repository.FavouriteRepository;
@@ -59,13 +60,8 @@ public class FavouriteRepositoryImpl implements FavouriteRepository {
     }
 
     @Override
-    public void removeFavourite(Favourite favourite) {
-        UserEntity userEntity = getUserEntity(favourite.getUserId());
-        MovieEntity movieEntity = getMovieEntity(favourite.getMovieId());
-
-        FavouriteEntity entity = FavouriteMapper.toEntity(favourite, userEntity, movieEntity);
-
-        favouriteRepositoryJPA.delete(entity);
+    public void removeFavourite(FavouriteId favouriteId) {
+        favouriteRepositoryJPA.deleteById(favouriteId.value());
     }
 
     private UserEntity getUserEntity(UserId userId) {

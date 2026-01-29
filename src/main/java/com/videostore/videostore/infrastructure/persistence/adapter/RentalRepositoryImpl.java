@@ -4,6 +4,7 @@ import com.videostore.videostore.domain.exception.MovieNotFoundException;
 import com.videostore.videostore.domain.exception.UserNotFoundException;
 import com.videostore.videostore.domain.model.movie.valueobject.MovieId;
 import com.videostore.videostore.domain.model.rental.Rental;
+import com.videostore.videostore.domain.model.rental.valueobject.RentalId;
 import com.videostore.videostore.domain.model.user.valueobject.UserId;
 import com.videostore.videostore.domain.repository.RentalRepository;
 import com.videostore.videostore.infrastructure.persistence.entity.MovieEntity;
@@ -70,13 +71,8 @@ public class RentalRepositoryImpl implements RentalRepository {
     }
 
     @Override
-    public void removeRental(Rental rental) {
-        UserEntity userEntity = getUserEntity(rental.getUserId());
-        MovieEntity movieEntity = getMovieEntity(rental.getMovieId());
-
-        RentalEntity entity = RentalMapper.toEntity(rental, userEntity, movieEntity);
-
-        rentalRepositoryJPA.delete(entity);
+    public void removeRental(RentalId rentalId) {
+        rentalRepositoryJPA.deleteById(rentalId.value());
     }
 
     @Override

@@ -24,6 +24,6 @@ public class RemoveReviewUseCaseImpl implements RemoveReviewUseCase {
         Review review = reviewRepository.findByUserIdAndMovieId(new UserId(command.userId()), new MovieId(command.userId()))
                 .orElseThrow(() -> new ReviewNotFoundException("User cannot remove a movie they haven't made"));
 
-        reviewRepository.removeReview(review);
+        reviewRepository.removeReview(review.getId());
     }
 }

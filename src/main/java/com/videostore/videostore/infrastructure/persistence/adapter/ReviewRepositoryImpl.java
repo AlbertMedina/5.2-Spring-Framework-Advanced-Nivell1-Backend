@@ -4,6 +4,7 @@ import com.videostore.videostore.domain.exception.MovieNotFoundException;
 import com.videostore.videostore.domain.exception.UserNotFoundException;
 import com.videostore.videostore.domain.model.movie.valueobject.MovieId;
 import com.videostore.videostore.domain.model.review.Review;
+import com.videostore.videostore.domain.model.review.valueobject.ReviewId;
 import com.videostore.videostore.domain.model.user.valueobject.UserId;
 import com.videostore.videostore.domain.repository.ReviewRepository;
 import com.videostore.videostore.infrastructure.persistence.entity.MovieEntity;
@@ -59,13 +60,8 @@ public class ReviewRepositoryImpl implements ReviewRepository {
     }
 
     @Override
-    public void removeReview(Review review) {
-        UserEntity userEntity = getUserEntity(review.getUserId());
-        MovieEntity movieEntity = getMovieEntity(review.getMovieId());
-
-        ReviewEntity entity = ReviewMapper.toEntity(review, userEntity, movieEntity);
-
-        reviewRepositoryJPA.delete(entity);
+    public void removeReview(ReviewId reviewId) {
+        reviewRepositoryJPA.deleteById(reviewId.value());
     }
 
     private UserEntity getUserEntity(UserId userId) {

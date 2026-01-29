@@ -2,6 +2,7 @@ package com.videostore.videostore.domain.repository;
 
 import com.videostore.videostore.domain.model.movie.valueobject.MovieId;
 import com.videostore.videostore.domain.model.review.Review;
+import com.videostore.videostore.domain.model.review.valueobject.ReviewId;
 import com.videostore.videostore.domain.model.user.valueobject.UserId;
 
 import java.util.List;
@@ -17,5 +18,5 @@ public interface ReviewRepository {
 
     Review addReview(Review review);
 
-    void removeReview(Review review);
+    void removeReview(ReviewId reviewId);
 }

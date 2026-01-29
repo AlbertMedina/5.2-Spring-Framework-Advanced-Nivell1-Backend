@@ -2,6 +2,7 @@ package com.videostore.videostore.domain.repository;
 
 import com.videostore.videostore.domain.model.movie.valueobject.MovieId;
 import com.videostore.videostore.domain.model.rental.Rental;
+import com.videostore.videostore.domain.model.rental.valueobject.RentalId;
 import com.videostore.videostore.domain.model.user.valueobject.UserId;
 
 import java.util.List;
@@ -21,7 +22,7 @@ public interface RentalRepository {
 
     Rental addRental(Rental rental);
 
-    void removeRental(Rental rental);
+    void removeRental(RentalId rentalId);
 
     void returnAllByUser(UserId userId);
 }

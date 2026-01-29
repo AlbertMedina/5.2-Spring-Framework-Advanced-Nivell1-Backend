@@ -9,15 +9,15 @@ import com.videostore.videostore.domain.model.user.valueobject.UserId;
 
 public class Review {
 
-    private final ReviewId reviewId;
+    private final ReviewId id;
     private final UserId userId;
     private final MovieId movieId;
     private final Rating rating;
     private final Comment comment;
     private final ReviewDate reviewDate;
 
-    public Review(ReviewId reviewId, UserId userId, MovieId movieId, Rating rating, Comment comment, ReviewDate reviewDate) {
-        this.reviewId = reviewId;
+    public Review(ReviewId id, UserId userId, MovieId movieId, Rating rating, Comment comment, ReviewDate reviewDate) {
+        this.id = id;
         this.userId = userId;
         this.movieId = movieId;
         this.rating = rating;
@@ -25,8 +25,8 @@ public class Review {
         this.reviewDate = reviewDate;
     }
 
-    public ReviewId getReviewId() {
-        return reviewId;
+    public ReviewId getId() {
+        return id;
     }
 
     public UserId getUserId() {
@@ -49,7 +49,7 @@ public class Review {
         return reviewDate;
     }
 
-    public static Review create(ReviewId reviewId, UserId userId, MovieId movieId, Rating rating, Comment comment, ReviewDate reviewDate) {
-        return new Review(reviewId, userId, movieId, rating, comment, reviewDate);
+    public static Review create(ReviewId id, UserId userId, MovieId movieId, Rating rating, Comment comment, ReviewDate reviewDate) {
+        return new Review(id, userId, movieId, rating, comment, reviewDate);
     }
 }

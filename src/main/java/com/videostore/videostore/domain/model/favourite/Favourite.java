@@ -7,20 +7,20 @@ import com.videostore.videostore.domain.model.user.valueobject.UserId;
 
 public class Favourite {
 
-    private final FavouriteId favouriteId;
+    private final FavouriteId id;
     private final UserId userId;
     private final MovieId movieId;
     private final FavouriteDate favouriteDate;
 
-    public Favourite(FavouriteId favouriteId, UserId userId, MovieId movieId, FavouriteDate favouriteDate) {
-        this.favouriteId = favouriteId;
+    public Favourite(FavouriteId id, UserId userId, MovieId movieId, FavouriteDate favouriteDate) {
+        this.id = id;
         this.userId = userId;
         this.movieId = movieId;
         this.favouriteDate = favouriteDate;
     }
 
-    public FavouriteId getFavouriteId() {
-        return favouriteId;
+    public FavouriteId getId() {
+        return id;
     }
 
     public UserId getUserId() {
@@ -35,7 +35,7 @@ public class Favourite {
         return favouriteDate;
     }
 
-    public static Favourite create(FavouriteId favouriteId, UserId userId, MovieId movieId, FavouriteDate favouriteDate) {
-        return new Favourite(favouriteId, userId, movieId, favouriteDate);
+    public static Favourite create(FavouriteId id, UserId userId, MovieId movieId, FavouriteDate favouriteDate) {
+        return new Favourite(id, userId, movieId, favouriteDate);
     }
 }
