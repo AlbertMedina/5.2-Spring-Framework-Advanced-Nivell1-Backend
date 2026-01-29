@@ -1,37 +1,80 @@
 package com.videostore.videostore.infrastructure.persistence.adapter;
 
+import com.videostore.videostore.domain.exception.MovieNotFoundException;
+import com.videostore.videostore.domain.exception.UserNotFoundException;
 import com.videostore.videostore.domain.model.movie.valueobject.MovieId;
 import com.videostore.videostore.domain.model.review.Review;
 import com.videostore.videostore.domain.model.user.valueobject.UserId;
 import com.videostore.videostore.domain.repository.ReviewRepository;
+import com.videostore.videostore.infrastructure.persistence.entity.MovieEntity;
+import com.videostore.videostore.infrastructure.persistence.entity.ReviewEntity;
+import com.videostore.videostore.infrastructure.persistence.entity.UserEntity;
+import com.videostore.videostore.infrastructure.persistence.mapper.ReviewMapper;
+import com.videostore.videostore.infrastructure.persistence.repository.MovieRepositoryJPA;
+import com.videostore.videostore.infrastructure.persistence.repository.ReviewRepositoryJPA;
+import com.videostore.videostore.infrastructure.persistence.repository.UserRepositoryJPA;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
+@Repository
 public class ReviewRepositoryImpl implements ReviewRepository {
-    
-    @Override
-    public Optional<Review> findByUserIdAndMovieId(UserId userId, MovieId movieId) {
-        return Optional.empty();
+
+    private final ReviewRepositoryJPA reviewRepositoryJPA;
+    private final UserRepositoryJPA userRepositoryJPA;
+    private final MovieRepositoryJPA movieRepositoryJPA;
+
+    public ReviewRepositoryImpl(ReviewRepositoryJPA reviewRepositoryJPA, UserRepositoryJPA userRepositoryJPA, MovieRepositoryJPA movieRepositoryJPA) {
+        this.reviewRepositoryJPA = reviewRepositoryJPA;
+        this.userRepositoryJPA = userRepositoryJPA;
+        this.movieRepositoryJPA = movieRepositoryJPA;
     }
 
     @Override
-    public List<Review> findAllByMovie(MovieId movieId) {
-        return List.of();
+    public Optional<Review> findByUserIdAndMovieId(UserId userId, MovieId movieId) {
+        return reviewRepositoryJPA.findByUserIdAndMovieId(userId.value(), movieId.value())
+                .map(ReviewMapper::toDomain);
     }
 
     @Override
     public boolean existsByUserIdAndMovieId(UserId userId, MovieId movieId) {
-        return false;
+        return reviewRepositoryJPA.existsByUserIdAndMovieId(userId.value(), movieId.value());
+    }
+
+    @Override
+    public List<Review> findAllByMovie(MovieId movieId) {
+        return reviewRepositoryJPA.findAllByMovieId(movieId.value())
+                .stream().map(ReviewMapper::toDomain).toList();
     }
 
     @Override
     public Review addReview(Review review) {
-        return null;
+        UserEntity userEntity = getUserEntity(review.getUserId());
+        MovieEntity movieEntity = getMovieEntity(review.getMovieId());
+
+        ReviewEntity entity = ReviewMapper.toEntity(review, userEntity, movieEntity);
+
+        return ReviewMapper.toDomain(reviewRepositoryJPA.save(entity));
     }
 
     @Override
     public void removeReview(Review review) {
+        UserEntity userEntity = getUserEntity(review.getUserId());
+        MovieEntity movieEntity = getMovieEntity(review.getMovieId());
 
+        ReviewEntity entity = ReviewMapper.toEntity(review, userEntity, movieEntity);
+
+        reviewRepositoryJPA.delete(entity);
+    }
+
+    private UserEntity getUserEntity(UserId userId) {
+        return userRepositoryJPA.findById(userId.value())
+                .orElseThrow(() -> new UserNotFoundException(userId.value()));
+    }
+
+    private MovieEntity getMovieEntity(MovieId movieId) {
+        return movieRepositoryJPA.findById(movieId.value())
+                .orElseThrow(() -> new MovieNotFoundException(movieId.value()));
     }
 }

@@ -11,9 +11,9 @@ public interface ReviewRepository {
 
     Optional<Review> findByUserIdAndMovieId(UserId userId, MovieId movieId);
 
-    List<Review> findAllByMovie(MovieId movieId);
-
     boolean existsByUserIdAndMovieId(UserId userId, MovieId movieId);
+
+    List<Review> findAllByMovie(MovieId movieId);
 
     Review addReview(Review review);
 
