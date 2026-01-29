@@ -24,16 +24,18 @@ public class RemoveMovieUseCaseImpl implements RemoveMovieUseCase {
     @Override
     @Transactional
     public void execute(Long movieId) {
-        Movie movie = movieRepository.findById(new MovieId(movieId))
+        MovieId id = new MovieId(movieId);
+
+        Movie movie = movieRepository.findById(id)
                 .orElseThrow(() -> new MovieNotFoundException(movieId));
 
-        validateMovieRemoval(movieId);
+        validateMovieRemoval(id);
 
         movieRepository.removeMovie(movie);
     }
 
-    private void validateMovieRemoval(Long movieId) {
-        if (rentalRepository.activeRentalsByMovie(new MovieId(movieId)) > 0) {
+    private void validateMovieRemoval(MovieId movieId) {
+        if (rentalRepository.activeRentalsByMovie(movieId) > 0) {
             throw new BusinessRuleViolationException("Cannot remove movie with active rentals");
         }
     }

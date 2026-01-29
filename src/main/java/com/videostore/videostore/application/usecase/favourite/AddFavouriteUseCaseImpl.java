@@ -33,14 +33,14 @@ public class AddFavouriteUseCaseImpl implements AddFavouriteUseCase {
     @Override
     @Transactional
     public Favourite execute(AddFavouriteCommand addFavouriteCommand) {
-        Long userId = addFavouriteCommand.userId();
-        Long movieId = addFavouriteCommand.movieId();
+        UserId userId = new UserId(addFavouriteCommand.userId());
+        MovieId movieId = new MovieId(addFavouriteCommand.movieId());
 
-        User user = userRepository.findById(new UserId(userId))
-                .orElseThrow(() -> new UserNotFoundException(userId));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId.value()));
 
-        Movie movie = movieRepository.findById(new MovieId(movieId))
-                .orElseThrow(() -> new MovieNotFoundException(movieId));
+        Movie movie = movieRepository.findById(movieId)
+                .orElseThrow(() -> new MovieNotFoundException(movieId.value()));
 
         validateFavourite(userId, movieId);
 
@@ -53,9 +53,9 @@ public class AddFavouriteUseCaseImpl implements AddFavouriteUseCase {
         return favouriteRepository.addFavourite(favourite);
     }
 
-    private void validateFavourite(Long userId, Long movieId) {
-        if (favouriteRepository.existsByUserIdAndMovieId(new UserId(userId), new MovieId(movieId))) {
-            throw new FavouriteAlreadyExistingException(userId, movieId);
+    private void validateFavourite(UserId userId, MovieId movieId) {
+        if (favouriteRepository.existsByUserIdAndMovieId(userId, movieId)) {
+            throw new FavouriteAlreadyExistingException(userId.value(), movieId.value());
         }
     }
 }

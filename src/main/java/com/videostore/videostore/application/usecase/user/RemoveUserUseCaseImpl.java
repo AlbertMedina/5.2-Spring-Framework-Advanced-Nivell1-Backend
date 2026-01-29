@@ -23,10 +23,12 @@ public class RemoveUserUseCaseImpl implements RemoveUserUseCase {
     @Override
     @Transactional
     public void execute(Long userId) {
-        User user = userRepository.findById(new UserId(userId))
+        UserId id = new UserId(userId);
+
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(userId));
 
-        rentalRepository.returnAllByUser(new UserId(userId));
+        rentalRepository.returnAllByUser(id);
         userRepository.removeUser(user);
     }
 }

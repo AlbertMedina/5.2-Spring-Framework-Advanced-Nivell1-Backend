@@ -38,14 +38,14 @@ public class AddReviewUseCaseImpl implements AddReviewUseCase {
     @Override
     @Transactional
     public Review execute(AddReviewCommand command) {
-        Long userId = command.userId();
-        Long movieId = command.movieId();
+        UserId userId = new UserId(command.userId());
+        MovieId movieId = new MovieId(command.movieId());
 
-        User user = userRepository.findById(new UserId(userId))
-                .orElseThrow(() -> new UserNotFoundException(userId));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId.value()));
 
-        Movie movie = movieRepository.findById(new MovieId(movieId))
-                .orElseThrow(() -> new MovieNotFoundException(movieId));
+        Movie movie = movieRepository.findById(movieId)
+                .orElseThrow(() -> new MovieNotFoundException(movieId.value()));
 
         validateReview(userId, movieId);
 
@@ -60,13 +60,13 @@ public class AddReviewUseCaseImpl implements AddReviewUseCase {
         return reviewRepository.addReview(review);
     }
 
-    private void validateReview(Long userId, Long movieId) {
-        if (!rentalRepository.existsByUserIdAndMovieId(new UserId(userId), new MovieId(movieId))) {
+    private void validateReview(UserId userId, MovieId movieId) {
+        if (!rentalRepository.existsByUserIdAndMovieId(userId, movieId)) {
             throw new RentalNotFoundException("Users must have the movie rented to add a review");
         }
 
-        if (reviewRepository.existsByUserIdAndMovieId(new UserId(userId), new MovieId(movieId))) {
-            throw new MovieAlreadyReviewedException(userId, movieId);
+        if (reviewRepository.existsByUserIdAndMovieId(userId, movieId)) {
+            throw new MovieAlreadyReviewedException(userId.value(), movieId.value());
         }
     }
 }

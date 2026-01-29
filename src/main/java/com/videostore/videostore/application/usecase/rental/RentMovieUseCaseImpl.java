@@ -33,14 +33,14 @@ public class RentMovieUseCaseImpl implements RentMovieUseCase {
     @Override
     @Transactional
     public Rental execute(RentMovieCommand command) {
-        Long userId = command.userId();
-        Long movieId = command.movieId();
+        UserId userId = new UserId(command.userId());
+        MovieId movieId = new MovieId(command.movieId());
 
-        User user = userRepository.findById(new UserId(userId))
-                .orElseThrow(() -> new UserNotFoundException(userId));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId.value()));
 
-        Movie movie = movieRepository.findById(new MovieId(movieId))
-                .orElseThrow(() -> new MovieNotFoundException(movieId));
+        Movie movie = movieRepository.findById(movieId)
+                .orElseThrow(() -> new MovieNotFoundException(movieId.value()));
 
         validateRental(userId, movieId, movie);
 
@@ -53,13 +53,13 @@ public class RentMovieUseCaseImpl implements RentMovieUseCase {
         return rentalRepository.addRental(rental);
     }
 
-    private void validateRental(Long userId, Long movieId, Movie movie) {
-        if (rentalRepository.existsByUserIdAndMovieId(new UserId(userId), new MovieId(movieId))) {
-            throw new MovieAlreadyRentedException(userId, movieId);
+    private void validateRental(UserId userId, MovieId movieId, Movie movie) {
+        if (rentalRepository.existsByUserIdAndMovieId(userId, movieId)) {
+            throw new MovieAlreadyRentedException(userId.value(), movieId.value());
         }
 
-        if (rentalRepository.activeRentalsByMovie(new MovieId(movieId)) >= movie.getNumberOfCopies().value()) {
-            throw new MovieNotAvailableException(movieId);
+        if (rentalRepository.activeRentalsByMovie(movieId) >= movie.getNumberOfCopies().value()) {
+            throw new MovieNotAvailableException(movieId.value());
         }
     }
 }
