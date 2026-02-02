@@ -8,11 +8,15 @@ import com.videostore.videostore.application.usecase.favourite.GetFavouritesByUs
 import com.videostore.videostore.domain.model.favourite.Favourite;
 import com.videostore.videostore.web.controller.favourite.dto.request.AddFavouriteRequest;
 import com.videostore.videostore.web.controller.favourite.dto.response.FavouriteResponse;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Validated
 @RestController
 public class FavouriteController {
 
@@ -27,7 +31,7 @@ public class FavouriteController {
     }
 
     @PostMapping("/favourites")
-    public ResponseEntity<FavouriteResponse> addFavourite(@RequestBody AddFavouriteRequest request) {
+    public ResponseEntity<FavouriteResponse> addFavourite(@RequestBody @Valid AddFavouriteRequest request) {
         AddFavouriteCommand command = new AddFavouriteCommand(request.userId(), request.movieId());
         Favourite favourite = addFavouriteUseCase.execute(command);
 
@@ -36,14 +40,15 @@ public class FavouriteController {
     }
 
     @DeleteMapping("/favourites/{userId}/{movieId}")
-    public ResponseEntity<Void> removeFavourite(@PathVariable Long userId, @PathVariable Long movieId) {
+    public ResponseEntity<Void> removeFavourite(@PathVariable @Positive Long userId, @PathVariable @Positive Long movieId) {
         RemoveFavouriteCommand command = new RemoveFavouriteCommand(userId, movieId);
         removeFavouriteUseCase.execute(command);
+        
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/users/{userId}/favourites")
-    public ResponseEntity<List<FavouriteResponse>> getFavouritesByUser(@PathVariable Long userId) {
+    public ResponseEntity<List<FavouriteResponse>> getFavouritesByUser(@PathVariable @Positive Long userId) {
         List<FavouriteResponse> response = getFavouritesByUserUseCase.execute(userId)
                 .stream().map(FavouriteResponse::fromDomain).toList();
 

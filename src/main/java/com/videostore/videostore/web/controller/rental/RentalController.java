@@ -9,11 +9,15 @@ import com.videostore.videostore.application.port.in.rental.ReturnMovieUseCase;
 import com.videostore.videostore.domain.model.rental.Rental;
 import com.videostore.videostore.web.controller.rental.dto.request.RentMovieRequest;
 import com.videostore.videostore.web.controller.rental.dto.response.RentalResponse;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Validated
 @RestController
 public class RentalController {
 
@@ -30,7 +34,7 @@ public class RentalController {
     }
 
     @PostMapping("/rentals")
-    public ResponseEntity<RentalResponse> rentMovie(@RequestBody RentMovieRequest request) {
+    public ResponseEntity<RentalResponse> rentMovie(@RequestBody @Valid RentMovieRequest request) {
         RentMovieCommand command = new RentMovieCommand(request.userId(), request.movieId());
         Rental rental = rentMovieUseCase.execute(command);
 
@@ -39,14 +43,15 @@ public class RentalController {
     }
 
     @DeleteMapping("/rentals/{userId}/{movieId}")
-    public ResponseEntity<Void> returnMovie(@PathVariable Long userId, @PathVariable Long movieId) {
+    public ResponseEntity<Void> returnMovie(@PathVariable @Positive Long userId, @PathVariable @Positive Long movieId) {
         ReturnMovieCommand command = new ReturnMovieCommand(userId, movieId);
         returnMovieUseCase.execute(command);
+        
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/users/{userId}/rentals")
-    public ResponseEntity<List<RentalResponse>> getRentalsByUser(@PathVariable Long userId) {
+    public ResponseEntity<List<RentalResponse>> getRentalsByUser(@PathVariable @Positive Long userId) {
         List<RentalResponse> response = getRentalsByUserUseCase.execute(userId)
                 .stream().map(RentalResponse::fromDomain).toList();
 
@@ -54,7 +59,7 @@ public class RentalController {
     }
 
     @GetMapping("/movies/{movieId}/rentals")
-    public ResponseEntity<List<RentalResponse>> getRentalsByMovie(@PathVariable Long movieId) {
+    public ResponseEntity<List<RentalResponse>> getRentalsByMovie(@PathVariable @Positive Long movieId) {
         List<RentalResponse> response = getRentalsByMovieUseCase.execute(movieId)
                 .stream().map(RentalResponse::fromDomain).toList();
 
