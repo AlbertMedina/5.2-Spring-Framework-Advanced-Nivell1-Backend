@@ -35,13 +35,13 @@ public class MovieRepositoryImpl implements MovieRepository {
     }
 
     @Override
-    public List<Movie> findAll(int page, int amount, String genre, boolean onlyAvailable, String title, MovieSortBy sortBy, boolean ascending) {
+    public List<Movie> findAll(int page, int size, String genre, boolean onlyAvailable, String title, MovieSortBy sortBy, boolean ascending) {
         Specification<MovieEntity> spec = MovieSpecifications.genreEquals(genre)
                 .and(MovieSpecifications.titleContains(title))
                 .and(MovieSpecifications.onlyAvailable(onlyAvailable))
                 .and(MovieSpecifications.applySorting(sortBy, ascending));
 
-        Pageable pageable = PageRequest.of(page, amount);
+        Pageable pageable = PageRequest.of(page, size);
 
         return movieRepositoryJPA.findAll(spec, pageable)
                 .stream()

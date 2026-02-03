@@ -4,7 +4,7 @@ import com.videostore.videostore.domain.model.movie.MovieSortBy;
 
 public record GetAllMoviesQuery(
         int page,
-        int amount,
+        int size,
         String genre,
         boolean onlyAvailable,
         String title,

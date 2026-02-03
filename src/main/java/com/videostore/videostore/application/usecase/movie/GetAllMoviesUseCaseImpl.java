@@ -23,7 +23,7 @@ public class GetAllMoviesUseCaseImpl implements GetAllMoviesUseCase {
     public List<Movie> execute(GetAllMoviesQuery getAllMoviesQuery) {
         return movieRepository.findAll(
                 getAllMoviesQuery.page(),
-                getAllMoviesQuery.amount(),
+                getAllMoviesQuery.size(),
                 getAllMoviesQuery.genre(),
                 getAllMoviesQuery.onlyAvailable(),
                 getAllMoviesQuery.title(),
