@@ -55,7 +55,7 @@ public class UserController {
         return ResponseEntity.status(201).body(response);
     }
 
-    @PostMapping("auth/login")
+    @PostMapping("/auth/login")
     public ResponseEntity<UserResponse> loginUser(@RequestBody @Valid LoginUserRequest request) {
         LoginUserCommand command = new LoginUserCommand(
                 request.loginIdentifier(),
@@ -64,7 +64,7 @@ public class UserController {
         User user = loginUserUseCase.execute(command);
 
         UserResponse response = UserResponse.fromDomain(user);
-        return ResponseEntity.status(201).body(response);
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/users/{userId}")
