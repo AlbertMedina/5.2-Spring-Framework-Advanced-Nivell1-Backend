@@ -27,7 +27,7 @@ public class LoginUserUseCaseImpl implements LoginUserUseCase {
     public User execute(LoginUserCommand command) {
 
         try {
-            LoginIdentifier loginIdentifier = new LoginIdentifier(command.usernameOrEmail());
+            LoginIdentifier loginIdentifier = new LoginIdentifier(command.loginIdentifier());
 
             User user = (loginIdentifier.isEmail()
                     ? userRepository.findByEmail(new Email(loginIdentifier.value()))
