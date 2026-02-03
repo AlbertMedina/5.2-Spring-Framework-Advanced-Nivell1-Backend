@@ -7,8 +7,7 @@ public record UserResponse(
         String name,
         String surname,
         String username,
-        String email,
-        String password
+        String email
 ) {
     public static UserResponse fromDomain(User user) {
         return new UserResponse(
@@ -16,8 +15,7 @@ public record UserResponse(
                 user.getName().value(),
                 user.getSurname().value(),
                 user.getUsername().value(),
-                user.getEmail().value(),
-                user.getPassword().value()
+                user.getEmail().value()
         );
     }
 }
