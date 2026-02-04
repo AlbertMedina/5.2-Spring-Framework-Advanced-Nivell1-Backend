@@ -72,16 +72,14 @@ public class UserController {
     }*/
 
     @PostMapping("/auth/login")
-    public ResponseEntity<LoginResponse> loginUser(
-            @RequestBody @Valid LoginUserRequest request
-    ) {
-        LoginUserCommand command =
-                new LoginUserCommand(request.loginIdentifier(), request.password());
-
+    public ResponseEntity<LoginResponse> loginUser(@RequestBody @Valid LoginUserRequest request) {
+        LoginUserCommand command = new LoginUserCommand(
+                request.loginIdentifier(),
+                request.password()
+        );
         User user = loginUserUseCase.execute(command);
 
         String token = jwtService.generateToken(user.getUsername().value());
-
         return ResponseEntity.ok(new LoginResponse(token));
     }
 
