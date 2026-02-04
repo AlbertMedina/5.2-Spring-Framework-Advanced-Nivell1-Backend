@@ -8,6 +8,7 @@ import com.videostore.videostore.domain.model.user.User;
 import com.videostore.videostore.domain.model.user.valueobject.Email;
 import com.videostore.videostore.domain.model.user.valueobject.Username;
 import com.videostore.videostore.domain.repository.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,9 +18,11 @@ import java.util.Optional;
 public class LoginUserUseCaseImpl implements LoginUserUseCase {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public LoginUserUseCaseImpl(UserRepository userRepository) {
+    public LoginUserUseCaseImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -34,7 +37,7 @@ public class LoginUserUseCaseImpl implements LoginUserUseCase {
                     : userRepository.findByUsername(new Username(loginIdentifier.value())))
                     .orElseThrow(InvalidCredentialsException::new);
 
-            if (!command.password().equals(user.getPassword().value())) {
+            if (!passwordEncoder.matches(command.password(), user.getPassword().value())) {
                 throw new InvalidCredentialsException();
             }
 

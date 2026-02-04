@@ -8,6 +8,7 @@ import com.videostore.videostore.domain.model.user.Role;
 import com.videostore.videostore.domain.model.user.User;
 import com.videostore.videostore.domain.model.user.valueobject.*;
 import com.videostore.videostore.domain.repository.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,9 +16,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class RegisterUserUseCaseImpl implements RegisterUserUseCase {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public RegisterUserUseCaseImpl(UserRepository userRepository) {
+    public RegisterUserUseCaseImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -34,7 +37,7 @@ public class RegisterUserUseCaseImpl implements RegisterUserUseCase {
                 new Surname(command.surname()),
                 username,
                 email,
-                new Password(command.password()),
+                new Password(passwordEncoder.encode(command.password())),
                 Role.USER
         );
 
