@@ -11,6 +11,7 @@ import com.videostore.videostore.web.controller.favourite.dto.response.Favourite
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,25 +36,25 @@ public class FavouriteController {
     }
 
     @PostMapping("/favourites")
-    public ResponseEntity<FavouriteResponse> addFavourite(@RequestBody @Valid AddFavouriteRequest request) {
-        AddFavouriteCommand command = new AddFavouriteCommand(request.userId(), request.movieId());
+    public ResponseEntity<FavouriteResponse> addFavourite(@RequestBody @Valid AddFavouriteRequest request, Authentication authentication) {
+        AddFavouriteCommand command = new AddFavouriteCommand(authentication.getName(), request.movieId());
         Favourite favourite = addFavouriteUseCase.execute(command);
 
         FavouriteResponse response = FavouriteResponse.fromDomain(favourite);
         return ResponseEntity.status(201).body(response);
     }
 
-    @DeleteMapping("/favourites/{userId}/{movieId}")
-    public ResponseEntity<Void> removeFavourite(@PathVariable @Positive Long userId, @PathVariable @Positive Long movieId) {
-        RemoveFavouriteCommand command = new RemoveFavouriteCommand(userId, movieId);
+    @DeleteMapping("/favourites/{movieId}")
+    public ResponseEntity<Void> removeFavourite(@PathVariable @Positive Long movieId, Authentication authentication) {
+        RemoveFavouriteCommand command = new RemoveFavouriteCommand(authentication.getName(), movieId);
         removeFavouriteUseCase.execute(command);
 
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/users/{userId}/favourites")
-    public ResponseEntity<List<FavouriteResponse>> getFavouritesByUser(@PathVariable @Positive Long userId) {
-        List<FavouriteResponse> response = getFavouritesByUserUseCase.execute(userId)
+    @GetMapping("/favourites")
+    public ResponseEntity<List<FavouriteResponse>> getFavouritesByUser(Authentication authentication) {
+        List<FavouriteResponse> response = getFavouritesByUserUseCase.execute(authentication.getName())
                 .stream().map(FavouriteResponse::fromDomain).toList();
 
         return ResponseEntity.ok(response);

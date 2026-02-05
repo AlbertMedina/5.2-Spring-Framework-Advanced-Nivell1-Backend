@@ -1,7 +1,7 @@
 package com.videostore.videostore.application.command.favourite;
 
 public record AddFavouriteCommand(
-        Long userId,
+        String username,
         Long movieId
 ) {
 }

@@ -5,5 +5,5 @@ import com.videostore.videostore.domain.model.favourite.Favourite;
 import java.util.List;
 
 public interface GetFavouritesByUserUseCase {
-    List<Favourite> execute(Long userId);
+    List<Favourite> execute(String username);
 }

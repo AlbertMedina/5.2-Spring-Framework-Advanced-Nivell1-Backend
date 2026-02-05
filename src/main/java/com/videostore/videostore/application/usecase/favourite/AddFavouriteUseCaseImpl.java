@@ -11,6 +11,7 @@ import com.videostore.videostore.domain.model.movie.Movie;
 import com.videostore.videostore.domain.model.movie.valueobject.MovieId;
 import com.videostore.videostore.domain.model.user.User;
 import com.videostore.videostore.domain.model.user.valueobject.UserId;
+import com.videostore.videostore.domain.model.user.valueobject.Username;
 import com.videostore.videostore.domain.repository.FavouriteRepository;
 import com.videostore.videostore.domain.repository.MovieRepository;
 import com.videostore.videostore.domain.repository.UserRepository;
@@ -35,16 +36,16 @@ public class AddFavouriteUseCaseImpl implements AddFavouriteUseCase {
     @Override
     @Transactional
     public Favourite execute(AddFavouriteCommand addFavouriteCommand) {
-        UserId userId = new UserId(addFavouriteCommand.userId());
+        Username username = new Username(addFavouriteCommand.username());
         MovieId movieId = new MovieId(addFavouriteCommand.movieId());
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId.value()));
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException(username.value()));
 
         Movie movie = movieRepository.findById(movieId)
                 .orElseThrow(() -> new MovieNotFoundException(movieId.value()));
 
-        validateFavourite(userId, movieId);
+        validateFavourite(user.getId(), movieId);
 
         Favourite favourite = Favourite.create(
                 null,

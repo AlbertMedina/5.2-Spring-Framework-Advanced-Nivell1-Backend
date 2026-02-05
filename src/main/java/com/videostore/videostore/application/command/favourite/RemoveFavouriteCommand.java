@@ -1,7 +1,7 @@
 package com.videostore.videostore.application.command.favourite;
 
 public record RemoveFavouriteCommand(
-        Long userId,
+        String username,
         Long movieId
 ) {
 }
