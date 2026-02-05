@@ -13,6 +13,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +26,7 @@ public class UserController {
     private final RegisterUserUseCase registerUserUseCase;
     private final LoginUserUseCase loginUserUseCase;
     private final RemoveUserUseCase removeUserUseCase;
+    private final GetMeUseCase getMeUseCase;
     private final GetUserUseCase getUserUseCase;
     private final GetAllUsersUseCase getAllUsersUseCase;
     private final JwtService jwtService;
@@ -33,6 +35,7 @@ public class UserController {
             RegisterUserUseCase registerUserUseCase,
             LoginUserUseCase loginUserUseCase,
             RemoveUserUseCase removeUserUseCase,
+            GetMeUseCase getMeUseCase,
             GetUserUseCase getUserUseCase,
             GetAllUsersUseCase getAllUsersUseCase,
             JwtService jwtService
@@ -40,6 +43,7 @@ public class UserController {
         this.registerUserUseCase = registerUserUseCase;
         this.loginUserUseCase = loginUserUseCase;
         this.removeUserUseCase = removeUserUseCase;
+        this.getMeUseCase = getMeUseCase;
         this.getUserUseCase = getUserUseCase;
         this.getAllUsersUseCase = getAllUsersUseCase;
         this.jwtService = jwtService;
@@ -78,6 +82,15 @@ public class UserController {
         removeUserUseCase.execute(userId);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/me")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<UserResponse> getMe(Authentication authentication) {
+        User user = getMeUseCase.execute(authentication.getName());
+
+        UserResponse response = UserResponse.fromDomain(user);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/users/{userId}")

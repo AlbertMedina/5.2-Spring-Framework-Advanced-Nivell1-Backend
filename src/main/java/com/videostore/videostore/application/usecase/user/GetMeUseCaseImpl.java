@@ -1,16 +1,16 @@
 package com.videostore.videostore.application.usecase.user;
 
-import com.videostore.videostore.application.port.in.user.GetUserByUsernameUseCase;
+import com.videostore.videostore.application.port.in.user.GetMeUseCase;
 import com.videostore.videostore.domain.exception.notfound.UserNotFoundException;
 import com.videostore.videostore.domain.model.user.User;
 import com.videostore.videostore.domain.model.user.valueobject.Username;
 import com.videostore.videostore.domain.repository.UserRepository;
 
-public class GetUserByUsernameUseCaseImpl implements GetUserByUsernameUseCase {
+public class GetMeUseCaseImpl implements GetMeUseCase {
 
     private final UserRepository userRepository;
 
-    public GetUserByUsernameUseCaseImpl(UserRepository userRepository) {
+    public GetMeUseCaseImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
