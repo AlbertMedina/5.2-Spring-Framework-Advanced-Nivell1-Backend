@@ -1,7 +1,7 @@
 package com.videostore.videostore.application.command.rental;
 
 public record ReturnMovieCommand(
-        Long userId,
+        String username,
         Long movieId
 ) {
 }

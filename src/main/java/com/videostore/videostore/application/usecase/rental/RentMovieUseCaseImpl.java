@@ -12,6 +12,7 @@ import com.videostore.videostore.domain.model.rental.Rental;
 import com.videostore.videostore.domain.model.rental.valueobject.RentalDate;
 import com.videostore.videostore.domain.model.user.User;
 import com.videostore.videostore.domain.model.user.valueobject.UserId;
+import com.videostore.videostore.domain.model.user.valueobject.Username;
 import com.videostore.videostore.domain.repository.MovieRepository;
 import com.videostore.videostore.domain.repository.RentalRepository;
 import com.videostore.videostore.domain.repository.UserRepository;
@@ -36,16 +37,16 @@ public class RentMovieUseCaseImpl implements RentMovieUseCase {
     @Override
     @Transactional
     public Rental execute(RentMovieCommand command) {
-        UserId userId = new UserId(command.userId());
+        Username username = new Username(command.username());
         MovieId movieId = new MovieId(command.movieId());
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId.value()));
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException(username.value()));
 
         Movie movie = movieRepository.findById(movieId)
                 .orElseThrow(() -> new MovieNotFoundException(movieId.value()));
 
-        validateRental(userId, movieId, movie);
+        validateRental(user.getId(), movieId, movie);
 
         Rental rental = Rental.create(
                 null,
