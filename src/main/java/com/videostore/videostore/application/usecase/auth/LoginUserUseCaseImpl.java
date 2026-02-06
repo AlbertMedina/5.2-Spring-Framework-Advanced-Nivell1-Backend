@@ -5,8 +5,6 @@ import com.videostore.videostore.application.command.auth.LoginUserCommand;
 import com.videostore.videostore.application.port.in.auth.LoginUserUseCase;
 import com.videostore.videostore.domain.exception.validation.InvalidCredentialsException;
 import com.videostore.videostore.domain.model.user.User;
-import com.videostore.videostore.domain.model.user.valueobject.Email;
-import com.videostore.videostore.domain.model.user.valueobject.Username;
 import com.videostore.videostore.domain.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -26,23 +24,20 @@ public class LoginUserUseCaseImpl implements LoginUserUseCase {
     @Override
     @Transactional(readOnly = true)
     public User execute(LoginUserCommand command) {
-
+        LoginIdentifier loginIdentifier;
         try {
-            LoginIdentifier loginIdentifier = new LoginIdentifier(command.loginIdentifier());
-
-            User user = (loginIdentifier.isEmail()
-                    ? userRepository.findByEmail(new Email(loginIdentifier.value()))
-                    : userRepository.findByUsername(new Username(loginIdentifier.value())))
-                    .orElseThrow(InvalidCredentialsException::new);
-
-            if (!passwordEncoder.matches(command.password(), user.getPassword().value())) {
-                throw new InvalidCredentialsException();
-            }
-
-            return user;
-
+            loginIdentifier = new LoginIdentifier(command.loginIdentifier());
         } catch (IllegalArgumentException e) {
             throw new InvalidCredentialsException();
         }
+
+        User user = userRepository.findByLoginIdentifier(loginIdentifier)
+                .orElseThrow(InvalidCredentialsException::new);
+
+        if (!passwordEncoder.matches(command.password(), user.getPassword().value())) {
+            throw new InvalidCredentialsException();
+        }
+
+        return user;
     }
 }

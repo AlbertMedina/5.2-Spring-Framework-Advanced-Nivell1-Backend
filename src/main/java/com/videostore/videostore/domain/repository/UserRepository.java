@@ -1,5 +1,6 @@
 package com.videostore.videostore.domain.repository;
 
+import com.videostore.videostore.application.auth.valueobject.LoginIdentifier;
 import com.videostore.videostore.domain.model.user.User;
 import com.videostore.videostore.domain.model.user.valueobject.Email;
 import com.videostore.videostore.domain.model.user.valueobject.UserId;
@@ -23,6 +24,8 @@ public interface UserRepository {
     Optional<User> findByEmail(Email email);
 
     boolean existsByEmail(Email email);
+
+    Optional<User> findByLoginIdentifier(LoginIdentifier loginIdentifier);
 
     User registerUser(User user);
 
