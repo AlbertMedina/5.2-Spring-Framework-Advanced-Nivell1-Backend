@@ -109,6 +109,60 @@ class AuthControllerIntegrationTest {
     }
 
     @Test
+    void register_shouldFailWithInvalidUsername() throws Exception {
+        String body = """
+                    {
+                      "name": "User",
+                      "surname": "Example",
+                      "username": "invalid username",
+                      "email": "user123@test.com",
+                      "password": "password12345"
+                    }
+                """;
+
+        mockMvc.perform(post("/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isInternalServerError());
+    }
+
+    @Test
+    void register_shouldFailWithInvalidEmail() throws Exception {
+        String body = """
+                    {
+                      "name": "User",
+                      "surname": "Example",
+                      "username": "user123",
+                      "email": "invalid-email",
+                      "password": "password12345"
+                    }
+                """;
+
+        mockMvc.perform(post("/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isInternalServerError());
+    }
+
+    @Test
+    void register_shouldFailWithInvalidPassword() throws Exception {
+        String body = """
+                    {
+                      "name": "User",
+                      "surname": "Example",
+                      "username": "user123",
+                      "email": "user123@test.com",
+                      "password": "invalid-password"
+                    }
+                """;
+
+        mockMvc.perform(post("/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isInternalServerError());
+    }
+
+    @Test
     void login_shouldWorkWithProperUsernameAndPassword() throws Exception {
         String body = """
                     {

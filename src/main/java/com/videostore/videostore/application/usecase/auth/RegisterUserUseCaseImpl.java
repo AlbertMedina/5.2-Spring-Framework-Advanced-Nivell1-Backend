@@ -31,13 +31,16 @@ public class RegisterUserUseCaseImpl implements RegisterUserUseCase {
 
         validateRegisterUser(username, email);
 
+        String rawPassword = command.password();
+        Password.validate(rawPassword);
+
         User user = User.create(
                 null,
                 new Name(command.name()),
                 new Surname(command.surname()),
                 username,
                 email,
-                new Password(passwordEncoder.encode(command.password())),
+                new Password(passwordEncoder.encode(rawPassword)),
                 Role.USER
         );
 
