@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.videostore.videostore.TestContainersConfiguration;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -39,5 +40,193 @@ class AuthControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().isCreated());
+    }
+
+    @Test
+    void register_shouldFailWhenExistingUsername() throws Exception {
+        String body = """
+                    {
+                      "name": "User",
+                      "surname": "Example",
+                      "username": "user123",
+                      "email": "user123@test.com",
+                      "password": "password12345"
+                    }
+                """;
+
+        mockMvc.perform(post("/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isCreated());
+
+        body = """
+                    {
+                      "name": "User",
+                      "surname": "Example",
+                      "username": "user123",
+                      "email": "user12345@test.com",
+                      "password": "password12345"
+                    }
+                """;
+
+        mockMvc.perform(post("/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    void register_shouldFailWhenExistingEmail() throws Exception {
+        String body = """
+                    {
+                      "name": "User",
+                      "surname": "Example",
+                      "username": "user123",
+                      "email": "user123@test.com",
+                      "password": "password12345"
+                    }
+                """;
+
+        mockMvc.perform(post("/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isCreated());
+
+        body = """
+                    {
+                      "name": "User",
+                      "surname": "Example",
+                      "username": "user12345",
+                      "email": "user123@test.com",
+                      "password": "password12345"
+                    }
+                """;
+
+        mockMvc.perform(post("/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    void login_shouldWorkWithProperUsernameAndPassword() throws Exception {
+        String body = """
+                    {
+                      "name": "User",
+                      "surname": "Example",
+                      "username": "user123",
+                      "email": "user123@test.com",
+                      "password": "password12345"
+                    }
+                """;
+
+        mockMvc.perform(post("/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isCreated());
+
+        String loginBody = """
+                    {
+                      "loginIdentifier": "user123",
+                      "password": "password12345"
+                    }
+                """;
+
+        mockMvc.perform(post("/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(loginBody))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.token").exists());
+    }
+
+    @Test
+    void login_shouldWorkWithProperEmailAndPassword() throws Exception {
+        String body = """
+                    {
+                      "name": "User",
+                      "surname": "Example",
+                      "username": "user123",
+                      "email": "user123@test.com",
+                      "password": "password12345"
+                    }
+                """;
+
+        mockMvc.perform(post("/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isCreated());
+
+        String loginBody = """
+                    {
+                      "loginIdentifier": "user123@test.com",
+                      "password": "password12345"
+                    }
+                """;
+
+        mockMvc.perform(post("/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(loginBody))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.token").exists());
+    }
+
+    @Test
+    void login_shouldFailWithWrongLoginIdentifier() throws Exception {
+        String body = """
+                    {
+                      "name": "User",
+                      "surname": "Example",
+                      "username": "user123",
+                      "email": "user123@test.com",
+                      "password": "password12345"
+                    }
+                """;
+
+        mockMvc.perform(post("/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isCreated());
+
+        String loginBody = """
+                    {
+                      "loginIdentifier": "example",
+                      "password": "password12345"
+                    }
+                """;
+
+        mockMvc.perform(post("/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(loginBody))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void login_shouldFailWithWrongPassword() throws Exception {
+        String body = """
+                    {
+                      "name": "User",
+                      "surname": "Example",
+                      "username": "user123",
+                      "email": "user123@test.com",
+                      "password": "password12345"
+                    }
+                """;
+
+        mockMvc.perform(post("/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isCreated());
+
+        String loginBody = """
+                    {
+                      "loginIdentifier": "user123",
+                      "password": "example"
+                    }
+                """;
+
+        mockMvc.perform(post("/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(loginBody))
+                .andExpect(status().isBadRequest());
     }
 }
