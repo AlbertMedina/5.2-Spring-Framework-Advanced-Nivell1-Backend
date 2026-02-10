@@ -39,16 +39,10 @@ public class MovieControllerIntegrationTest {
     private String adminToken;
     private String userToken;
 
-    private Long userId;
-    private Long adminId;
-
     @BeforeEach
     void setUp() throws Exception {
-        userId = registerUser("user1", "user1@test.com", "Password12345");
-        adminId = registerAdmin();
-
-        userToken = login("user1", "Password12345");
-        adminToken = login("admin", "Admin1234");
+        userToken = registerAndLoginUser();
+        adminToken = registerAndLoginAdmin();
     }
 
     @Test
@@ -560,29 +554,26 @@ public class MovieControllerIntegrationTest {
                 .andExpect(status().isBadRequest());
     }
 
-    private Long registerUser(String username, String email, String password) throws Exception {
+    private String registerAndLoginUser() throws Exception {
         String body = """
                 {
                   "name": "User",
                   "surname": "Example",
-                  "username": "%s",
-                  "email": "%s",
-                  "password": "%s"
+                  "username": "user1",
+                  "email": "user1@test.com",
+                  "password": "Password12345"
                 }
-                """.formatted(username, email, password);
+                """;
 
-        String response = mockMvc.perform(post("/auth/register")
+        mockMvc.perform(post("/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
-                .andExpect(status().isCreated())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
+                .andExpect(status().isCreated());
 
-        return JsonPath.parse(response).read("$.id", Long.class);
+        return login("user1", "Password12345");
     }
 
-    private Long registerAdmin() {
+    private String registerAndLoginAdmin() throws Exception {
         User admin = User.create(
                 null,
                 new Name("Admin"),
@@ -592,7 +583,9 @@ public class MovieControllerIntegrationTest {
                 new Password(passwordEncoder.encode("Admin1234")),
                 Role.ADMIN
         );
-        return userRepository.registerUser(admin).getId().value();
+        userRepository.registerUser(admin);
+
+        return login("admin", "Admin1234");
     }
 
     private String login(String login, String password) throws Exception {
