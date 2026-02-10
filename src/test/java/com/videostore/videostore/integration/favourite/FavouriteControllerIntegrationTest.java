@@ -115,8 +115,7 @@ public class FavouriteControllerIntegrationTest {
         Long movieId = addMovie("Movie 1", "Action", 1);
         addFavourite(movieId);
 
-        mockMvc.perform(delete("/favourites/{movieId}", movieId)
-                        .header("Authorization", "Bearer " + userToken))
+        mockMvc.perform(delete("/favourites/{movieId}", movieId))
                 .andExpect(status().isUnauthorized());
     }
 
@@ -153,8 +152,7 @@ public class FavouriteControllerIntegrationTest {
 
     @Test
     void getMyFavourites_shouldFailForUnauthenticatedUser() throws Exception {
-        mockMvc.perform(get("/me/favourites")
-                        .header("Authorization", "Bearer " + userToken))
+        mockMvc.perform(get("/me/favourites"))
                 .andExpect(status().isUnauthorized());
     }
 
