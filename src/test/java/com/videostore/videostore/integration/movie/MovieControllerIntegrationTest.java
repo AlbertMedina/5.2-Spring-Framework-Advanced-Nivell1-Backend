@@ -555,7 +555,7 @@ public class MovieControllerIntegrationTest {
     void getAllMovies_shouldSortByRating() throws Exception {
         String userToken = registerAndLoginUser();
 
-        Long movie1Id = addMovie("Movie 1", "Action", 2);
+        addMovie("Movie 1", "Action", 2);
 
         Long movie2Id = addMovie("Movie 2", "Action", 2);
         rentMovie(userToken, movie2Id);
@@ -569,12 +569,12 @@ public class MovieControllerIntegrationTest {
                         .param("page", "0")
                         .param("size", "10")
                         .param("sortBy", "RATING")
-                        .param("ascending", "false")
+                        .param("ascending", "true")
                         .header("Authorization", "Bearer " + userToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$.length()").value(3))
-                .andExpect(jsonPath("$[0].title").value("Movie 2"))
+                .andExpect(jsonPath("$[0].title").value("Movie 3"))
                 .andExpect(jsonPath("$[2].title").value("Movie 1"));
     }
 
