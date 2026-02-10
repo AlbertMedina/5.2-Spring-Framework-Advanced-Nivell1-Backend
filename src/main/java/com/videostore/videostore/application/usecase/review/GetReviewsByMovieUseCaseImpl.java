@@ -26,8 +26,7 @@ public class GetReviewsByMovieUseCaseImpl implements GetReviewsByMovieUseCase {
     @Override
     @Transactional(readOnly = true)
     public List<Review> execute(Long movieId) {
-        MovieId movieIdVo = new MovieId(movieId);
-        Movie movie = movieRepository.findById(movieIdVo)
+        Movie movie = movieRepository.findById(new MovieId(movieId))
                 .orElseThrow(() -> new MovieNotFoundException(movieId));
 
         return reviewRepository.findAllByMovie(movie.getId());
