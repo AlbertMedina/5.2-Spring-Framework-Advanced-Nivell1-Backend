@@ -387,6 +387,179 @@ public class MovieControllerIntegrationTest {
                 .andExpect(status().isNotFound());
     }
 
+    @Test
+    void getAllMovies_shouldReturnPagedList() throws Exception {
+        addMovie("Movie 1", 2000, "action", 120, "Director A", "Synopsis 1", 2);
+        addMovie("Movie 2", 2001, "action", 110, "Director B", "Synopsis 2", 2);
+        addMovie("Movie 3", 2002, "drama", 130, "Director C", "Synopsis 3", 2);
+
+        mockMvc.perform(get("/movies")
+                        .param("page", "0")
+                        .param("size", "2")
+                        .param("sortBy", "TITLE")
+                        .param("ascending", "true")
+                        .header("Authorization", "Bearer " + userToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(2));
+    }
+
+    @Test
+    void getAllMovies_shouldReturnEmptyListWhenNoMovies() throws Exception {
+        mockMvc.perform(get("/movies")
+                        .param("page", "0")
+                        .param("size", "2")
+                        .param("sortBy", "TITLE")
+                        .param("ascending", "true")
+                        .header("Authorization", "Bearer " + userToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(0));
+    }
+
+    @Test
+    void getAllMovies_shouldFilterByGenre() throws Exception {
+        addMovie("Movie 1", 2000, "action", 120, "Director A", "Synopsis 1", 2);
+        addMovie("Movie 2", 2001, "action", 110, "Director B", "Synopsis 2", 2);
+        addMovie("Movie 3", 2002, "drama", 130, "Director C", "Synopsis 3", 2);
+
+        mockMvc.perform(get("/movies")
+                        .param("page", "0")
+                        .param("size", "10")
+                        .param("genre", "action")
+                        .param("sortBy", "TITLE")
+                        .param("ascending", "true")
+                        .header("Authorization", "Bearer " + userToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(2));
+    }
+
+    @Test
+    void getAllMovies_shouldFilterByTitle() throws Exception {
+        addMovie("Movie 1", 2000, "action", 120, "Director A", "Synopsis 1", 2);
+        addMovie("Movie 2", 2001, "action", 110, "Director B", "Synopsis 2", 2);
+        addMovie("Movie 3", 2002, "drama", 130, "Director C", "Synopsis 3", 2);
+
+        mockMvc.perform(get("/movies")
+                        .param("page", "0")
+                        .param("size", "10")
+                        .param("title", "1")
+                        .param("sortBy", "TITLE")
+                        .param("ascending", "true")
+                        .header("Authorization", "Bearer " + userToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(1));
+    }
+
+    @Test
+    void getAllMovies_shouldFilterOnlyAvailableMovies() throws Exception {
+        Long movie1Id = addMovie("Movie 1", 2000, "action", 120, "Director A", "Synopsis 1", 1);
+        addMovie("Movie 2", 2001, "action", 110, "Director B", "Synopsis 2", 2);
+        addMovie("Movie 3", 2002, "drama", 130, "Director C", "Synopsis 3", 2);
+
+        rentMovie(userToken, movie1Id);
+
+        mockMvc.perform(get("/movies")
+                        .param("page", "0")
+                        .param("size", "10")
+                        .param("onlyAvailable", "true")
+                        .param("sortBy", "TITLE")
+                        .param("ascending", "true")
+                        .header("Authorization", "Bearer " + userToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(2));
+    }
+
+    @Test
+    void getAllMovies_shouldApplyMultipleFilters() throws Exception {
+        addMovie("Movie 1", 2000, "action", 120, "Director A", "Synopsis 1", 2);
+        addMovie("Movie 2", 2001, "action", 110, "Director B", "Synopsis 2", 2);
+        addMovie("Movie 11", 2002, "drama", 130, "Director C", "Synopsis 3", 2);
+
+        mockMvc.perform(get("/movies")
+                        .param("page", "0")
+                        .param("size", "10")
+                        .param("genre", "action")
+                        .param("title", "1")
+                        .param("sortBy", "TITLE")
+                        .param("ascending", "true")
+                        .header("Authorization", "Bearer " + userToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(1));
+    }
+
+    @Test
+    void getAllMovies_shouldSortAscending() throws Exception {
+        addMovie("Movie 1", 2000, "action", 120, "Director A", "Synopsis 1", 2);
+        addMovie("Movie 2", 2001, "action", 110, "Director B", "Synopsis 2", 2);
+        addMovie("Movie 3", 2002, "drama", 130, "Director C", "Synopsis 3", 2);
+
+        mockMvc.perform(get("/movies")
+                        .param("page", "0")
+                        .param("size", "10")
+                        .param("sortBy", "TITLE")
+                        .param("ascending", "true")
+                        .header("Authorization", "Bearer " + userToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(3))
+                .andExpect(jsonPath("$[0].title").value("Movie 1"))
+                .andExpect(jsonPath("$[2].title").value("Movie 3"));
+    }
+
+    @Test
+    void getAllMovies_shouldSortDescending() throws Exception {
+        addMovie("Movie 1", 2000, "action", 120, "Director A", "Synopsis 1", 2);
+        addMovie("Movie 2", 2001, "action", 110, "Director B", "Synopsis 2", 2);
+        addMovie("Movie 3", 2002, "drama", 130, "Director C", "Synopsis 3", 2);
+
+        mockMvc.perform(get("/movies")
+                        .param("page", "0")
+                        .param("size", "10")
+                        .param("sortBy", "TITLE")
+                        .param("ascending", "false")
+                        .header("Authorization", "Bearer " + userToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(3))
+                .andExpect(jsonPath("$[0].title").value("Movie 3"))
+                .andExpect(jsonPath("$[2].title").value("Movie 1"));
+    }
+
+    @Test
+    void getAllMovies_shouldFailWithInvalidPaginationParameters() throws Exception {
+        addMovie("Movie 1", 2000, "action", 120, "Director A", "Synopsis 1", 2);
+        addMovie("Movie 2", 2001, "action", 110, "Director B", "Synopsis 2", 2);
+        addMovie("Movie 3", 2002, "drama", 130, "Director C", "Synopsis 3", 2);
+
+        mockMvc.perform(get("/movies")
+                        .param("page", "-1")
+                        .param("size", "10")
+                        .param("sortBy", "TITLE")
+                        .param("ascending", "false")
+                        .header("Authorization", "Bearer " + userToken))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void getAllMovies_shouldFailWithInvalidSortBy() throws Exception {
+        addMovie("Movie 1", 2000, "action", 120, "Director A", "Synopsis 1", 2);
+        addMovie("Movie 2", 2001, "action", 110, "Director B", "Synopsis 2", 2);
+        addMovie("Movie 3", 2002, "drama", 130, "Director C", "Synopsis 3", 2);
+
+        mockMvc.perform(get("/movies")
+                        .param("page", "1")
+                        .param("size", "10")
+                        .param("sortBy", "invalid")
+                        .param("ascending", "false")
+                        .header("Authorization", "Bearer " + userToken))
+                .andExpect(status().isBadRequest());
+    }
+
     private Long registerUser(String username, String email, String password) throws Exception {
         String body = """
                 {
