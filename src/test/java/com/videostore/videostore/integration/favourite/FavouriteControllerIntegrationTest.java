@@ -59,6 +59,18 @@ public class FavouriteControllerIntegrationTest {
     }
 
     @Test
+    void addFavourite_shouldFailForUnauthenticatedUser() throws Exception {
+        Long movieId = addMovie("Movie 1", "Action", 1);
+
+        String body = favouriteBody(movieId);
+
+        mockMvc.perform(post("/favourites")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
     void addFavourite_shouldFailWhenMovieDoesNotExist() throws Exception {
         String body = favouriteBody(1L);
 
@@ -99,6 +111,16 @@ public class FavouriteControllerIntegrationTest {
     }
 
     @Test
+    void removeFavourite_shouldFailForUnauthenticatedUser() throws Exception {
+        Long movieId = addMovie("Movie 1", "Action", 1);
+        addFavourite(movieId);
+
+        mockMvc.perform(delete("/favourites/{movieId}", movieId)
+                        .header("Authorization", "Bearer " + userToken))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
     void removeFavourite_shouldFailWhenFavouriteDoesNotExist() throws Exception {
         mockMvc.perform(delete("/favourites/{movieId}", 1L)
                         .header("Authorization", "Bearer " + userToken))
@@ -127,6 +149,13 @@ public class FavouriteControllerIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$.length()").value(0));
+    }
+
+    @Test
+    void getMyFavourites_shouldFailForUnauthenticatedUser() throws Exception {
+        mockMvc.perform(get("/me/favourites")
+                        .header("Authorization", "Bearer " + userToken))
+                .andExpect(status().isUnauthorized());
     }
 
     private String registerAndLoginAdmin() throws Exception {
