@@ -47,7 +47,7 @@ public class FavouriteControllerIntegrationTest {
 
     @Test
     void addFavourite_shouldWorkForAuthenticatedUser() throws Exception {
-        Long movieId = addMovie("Movie 1", "Action", 1);
+        Long movieId = addMovie("Movie 1", "Action");
 
         String body = favouriteBody(movieId);
 
@@ -60,7 +60,7 @@ public class FavouriteControllerIntegrationTest {
 
     @Test
     void addFavourite_shouldFailForUnauthenticatedUser() throws Exception {
-        Long movieId = addMovie("Movie 1", "Action", 1);
+        Long movieId = addMovie("Movie 1", "Action");
 
         String body = favouriteBody(movieId);
 
@@ -83,7 +83,7 @@ public class FavouriteControllerIntegrationTest {
 
     @Test
     void addFavourite_shouldFailWhenFavouriteAlreadyExists() throws Exception {
-        Long movieId = addMovie("Movie 1", "Action", 1);
+        Long movieId = addMovie("Movie 1", "Action");
 
         String body = favouriteBody(movieId);
 
@@ -102,7 +102,7 @@ public class FavouriteControllerIntegrationTest {
 
     @Test
     void removeFavourite_shouldWorkForAuthenticatedUser() throws Exception {
-        Long movieId = addMovie("Movie 1", "Action", 1);
+        Long movieId = addMovie("Movie 1", "Action");
         addFavourite(movieId);
 
         mockMvc.perform(delete("/favourites/{movieId}", movieId)
@@ -112,7 +112,7 @@ public class FavouriteControllerIntegrationTest {
 
     @Test
     void removeFavourite_shouldFailForUnauthenticatedUser() throws Exception {
-        Long movieId = addMovie("Movie 1", "Action", 1);
+        Long movieId = addMovie("Movie 1", "Action");
         addFavourite(movieId);
 
         mockMvc.perform(delete("/favourites/{movieId}", movieId))
@@ -128,10 +128,10 @@ public class FavouriteControllerIntegrationTest {
 
     @Test
     void getMyFavourites_shouldReturnListForAuthenticatedUser() throws Exception {
-        Long movie1Id = addMovie("Movie 1", "Action", 1);
+        Long movie1Id = addMovie("Movie 1", "Action");
         addFavourite(movie1Id);
 
-        Long movie2Id = addMovie("Movie 2", "Drama", 1);
+        Long movie2Id = addMovie("Movie 2", "Drama");
         addFavourite(movie2Id);
 
         mockMvc.perform(get("/me/favourites")
@@ -209,18 +209,18 @@ public class FavouriteControllerIntegrationTest {
         return JsonPath.parse(response).read("$.token", String.class);
     }
 
-    private Long addMovie(String title, String genre, int numberOfCopies) throws Exception {
+    private Long addMovie(String title, String genre) throws Exception {
         String body = """
                 {
                   "title": "%s",
-                  "year": "2000",
+                  "year": 2000,
                   "genre": "%s",
-                  "duration": "120",
+                  "duration": 120,
                   "director": "Director",
                   "synopsis": "Synopsis",
-                  "numberOfCopies": "%d"
+                  "numberOfCopies": 1
                 }
-                """.formatted(title, genre, numberOfCopies);
+                """.formatted(title, genre);
 
         String response = mockMvc.perform(post("/movies")
                         .contentType(MediaType.APPLICATION_JSON)
