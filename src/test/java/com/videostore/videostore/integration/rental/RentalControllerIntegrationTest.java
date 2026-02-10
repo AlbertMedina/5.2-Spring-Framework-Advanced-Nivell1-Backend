@@ -152,12 +152,17 @@ public class RentalControllerIntegrationTest {
 
     @Test
     void getMyRentals_shouldReturnEmptyListWhenNoRentals() throws Exception {
-
+        mockMvc.perform(get("/me/rentals")
+                        .header("Authorization", "Bearer " + userToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(0));
     }
 
     @Test
     void getMyRentals_shouldFailForUnauthenticatedUser() throws Exception {
-
+        mockMvc.perform(get("/me/rentals"))
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -182,22 +187,43 @@ public class RentalControllerIntegrationTest {
 
     @Test
     void getRentalsByMovie_shouldReturnListForAdmin() throws Exception {
+        Long movieId = addMovie("Movie 1", 2);
 
+        String user2Token = registerAndLoginUser("user2", "user2@test.com", "Password67890");
+
+        rentMovie(userToken, movieId);
+        rentMovie(user2Token, movieId);
+
+        mockMvc.perform(get("/movies/{movieId}/rentals", movieId)
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(2));
     }
 
     @Test
     void getRentalsByMovie_shouldReturnEmptyListWhenMovieHasNoRentals() throws Exception {
+        Long movieId = addMovie("Movie 1", 2);
 
+        mockMvc.perform(get("/movies/{movieId}/rentals", movieId)
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(0));
     }
 
     @Test
     void getRentalsByMovie_shouldFailForNonAdmin() throws Exception {
-
+        mockMvc.perform(get("/movies/{movieId}/rentals", 1L)
+                        .header("Authorization", "Bearer " + userToken))
+                .andExpect(status().isForbidden());
     }
 
     @Test
     void getRentalsByMovie_shouldFailWhenMovieDoesNotExist() throws Exception {
-
+        mockMvc.perform(get("/movies/{movieId}/rentals", 999L)
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isNotFound());
     }
 
     private String registerAndLoginAdmin() throws Exception {
