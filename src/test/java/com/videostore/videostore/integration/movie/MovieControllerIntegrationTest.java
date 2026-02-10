@@ -372,16 +372,18 @@ public class MovieControllerIntegrationTest {
     void getMovie_shouldReturnMovie() throws Exception {
         Long movieId = addMovie("title", 2000, "genre", 120, "director", "synopsis", 2);
 
-        mockMvc.perform(get("/movies/{movieId}", movieId))
+        mockMvc.perform(get("/movies/{movieId}", movieId)
+                        .header("Authorization", "Bearer " + userToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value("title"));
     }
 
     @Test
     void getMovie_shouldFailWhenMovieDoesNotExist() throws Exception {
-        Long movieId = addMovie("title", 2000, "genre", 120, "director", "synopsis", 2);
+        addMovie("title", 2000, "genre", 120, "director", "synopsis", 2);
 
-        mockMvc.perform(get("/movies/{movieId}", movieId))
+        mockMvc.perform(get("/movies/{movieId}", 999L)
+                        .header("Authorization", "Bearer " + userToken))
                 .andExpect(status().isNotFound());
     }
 
