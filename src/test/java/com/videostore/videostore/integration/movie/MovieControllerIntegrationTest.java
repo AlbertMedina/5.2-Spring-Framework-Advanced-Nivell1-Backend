@@ -37,11 +37,9 @@ public class MovieControllerIntegrationTest {
     private PasswordEncoder passwordEncoder;
 
     private String adminToken;
-    private String userToken;
 
     @BeforeEach
     void setUp() throws Exception {
-        userToken = registerAndLoginUser();
         adminToken = registerAndLoginAdmin();
     }
 
@@ -68,6 +66,8 @@ public class MovieControllerIntegrationTest {
 
     @Test
     void addMovie_shouldFailForNonAdmin() throws Exception {
+        String userToken = registerAndLoginUser();
+
         String body = """
                 {
                   "title": "title",
@@ -260,6 +260,8 @@ public class MovieControllerIntegrationTest {
 
     @Test
     void updateMovieInfo_shouldFailForNonAdmin() throws Exception {
+        String userToken = registerAndLoginUser();
+
         Long movieId = addMovie("title", 2000, "genre", 120, "director", "synopsis", 2);
 
         String body = """
@@ -335,6 +337,8 @@ public class MovieControllerIntegrationTest {
 
     @Test
     void removeMovie_shouldFailForNonAdmin() throws Exception {
+        String userToken = registerAndLoginUser();
+
         Long movieId = addMovie("title", 2000, "genre", 120, "director", "synopsis", 2);
 
         mockMvc.perform(delete("/movies/{movieId}", movieId)
@@ -353,6 +357,8 @@ public class MovieControllerIntegrationTest {
 
     @Test
     void removeMovie_shouldFailWhenMovieHasActiveRentals() throws Exception {
+        String userToken = registerAndLoginUser();
+
         Long movieId = addMovie("title", 2000, "genre", 120, "director", "synopsis", 2);
 
         rentMovie(userToken, movieId);
@@ -364,6 +370,8 @@ public class MovieControllerIntegrationTest {
 
     @Test
     void getMovie_shouldReturnMovie() throws Exception {
+        String userToken = registerAndLoginUser();
+
         Long movieId = addMovie("title", 2000, "genre", 120, "director", "synopsis", 2);
 
         mockMvc.perform(get("/movies/{movieId}", movieId)
@@ -374,6 +382,8 @@ public class MovieControllerIntegrationTest {
 
     @Test
     void getMovie_shouldFailWhenMovieDoesNotExist() throws Exception {
+        String userToken = registerAndLoginUser();
+
         addMovie("title", 2000, "genre", 120, "director", "synopsis", 2);
 
         mockMvc.perform(get("/movies/{movieId}", 999L)
@@ -383,6 +393,8 @@ public class MovieControllerIntegrationTest {
 
     @Test
     void getAllMovies_shouldReturnPagedList() throws Exception {
+        String userToken = registerAndLoginUser();
+
         addMovie("Movie 1", 2000, "action", 120, "Director A", "Synopsis 1", 2);
         addMovie("Movie 2", 2001, "action", 110, "Director B", "Synopsis 2", 2);
         addMovie("Movie 3", 2002, "drama", 130, "Director C", "Synopsis 3", 2);
@@ -400,6 +412,9 @@ public class MovieControllerIntegrationTest {
 
     @Test
     void getAllMovies_shouldReturnEmptyListWhenNoMovies() throws Exception {
+        String userToken = registerAndLoginUser();
+
+
         mockMvc.perform(get("/movies")
                         .param("page", "0")
                         .param("size", "2")
@@ -413,6 +428,8 @@ public class MovieControllerIntegrationTest {
 
     @Test
     void getAllMovies_shouldFilterByGenre() throws Exception {
+        String userToken = registerAndLoginUser();
+
         addMovie("Movie 1", 2000, "action", 120, "Director A", "Synopsis 1", 2);
         addMovie("Movie 2", 2001, "action", 110, "Director B", "Synopsis 2", 2);
         addMovie("Movie 3", 2002, "drama", 130, "Director C", "Synopsis 3", 2);
@@ -431,6 +448,8 @@ public class MovieControllerIntegrationTest {
 
     @Test
     void getAllMovies_shouldFilterByTitle() throws Exception {
+        String userToken = registerAndLoginUser();
+
         addMovie("Movie 1", 2000, "action", 120, "Director A", "Synopsis 1", 2);
         addMovie("Movie 2", 2001, "action", 110, "Director B", "Synopsis 2", 2);
         addMovie("Movie 3", 2002, "drama", 130, "Director C", "Synopsis 3", 2);
@@ -449,6 +468,8 @@ public class MovieControllerIntegrationTest {
 
     @Test
     void getAllMovies_shouldFilterOnlyAvailableMovies() throws Exception {
+        String userToken = registerAndLoginUser();
+
         Long movie1Id = addMovie("Movie 1", 2000, "action", 120, "Director A", "Synopsis 1", 1);
         addMovie("Movie 2", 2001, "action", 110, "Director B", "Synopsis 2", 2);
         addMovie("Movie 3", 2002, "drama", 130, "Director C", "Synopsis 3", 2);
@@ -469,6 +490,8 @@ public class MovieControllerIntegrationTest {
 
     @Test
     void getAllMovies_shouldApplyMultipleFilters() throws Exception {
+        String userToken = registerAndLoginUser();
+
         addMovie("Movie 1", 2000, "action", 120, "Director A", "Synopsis 1", 2);
         addMovie("Movie 2", 2001, "action", 110, "Director B", "Synopsis 2", 2);
         addMovie("Movie 11", 2002, "drama", 130, "Director C", "Synopsis 3", 2);
@@ -488,6 +511,8 @@ public class MovieControllerIntegrationTest {
 
     @Test
     void getAllMovies_shouldSortAscending() throws Exception {
+        String userToken = registerAndLoginUser();
+
         addMovie("Movie 1", 2000, "action", 120, "Director A", "Synopsis 1", 2);
         addMovie("Movie 2", 2001, "action", 110, "Director B", "Synopsis 2", 2);
         addMovie("Movie 3", 2002, "drama", 130, "Director C", "Synopsis 3", 2);
@@ -507,6 +532,8 @@ public class MovieControllerIntegrationTest {
 
     @Test
     void getAllMovies_shouldSortDescending() throws Exception {
+        String userToken = registerAndLoginUser();
+
         addMovie("Movie 1", 2000, "action", 120, "Director A", "Synopsis 1", 2);
         addMovie("Movie 2", 2001, "action", 110, "Director B", "Synopsis 2", 2);
         addMovie("Movie 3", 2002, "drama", 130, "Director C", "Synopsis 3", 2);
@@ -526,6 +553,8 @@ public class MovieControllerIntegrationTest {
 
     @Test
     void getAllMovies_shouldFailWithInvalidPaginationParameters() throws Exception {
+        String userToken = registerAndLoginUser();
+
         addMovie("Movie 1", 2000, "action", 120, "Director A", "Synopsis 1", 2);
         addMovie("Movie 2", 2001, "action", 110, "Director B", "Synopsis 2", 2);
         addMovie("Movie 3", 2002, "drama", 130, "Director C", "Synopsis 3", 2);
@@ -541,6 +570,8 @@ public class MovieControllerIntegrationTest {
 
     @Test
     void getAllMovies_shouldFailWithInvalidSortBy() throws Exception {
+        String userToken = registerAndLoginUser();
+
         addMovie("Movie 1", 2000, "action", 120, "Director A", "Synopsis 1", 2);
         addMovie("Movie 2", 2001, "action", 110, "Director B", "Synopsis 2", 2);
         addMovie("Movie 3", 2002, "drama", 130, "Director C", "Synopsis 3", 2);
