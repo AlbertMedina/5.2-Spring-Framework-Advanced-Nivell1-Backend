@@ -1,45 +1,19 @@
 package com.videostore.videostore.integration.user;
 
-import com.jayway.jsonpath.JsonPath;
-import com.videostore.videostore.TestContainersConfiguration;
-import com.videostore.videostore.domain.model.user.Role;
-import com.videostore.videostore.domain.model.user.User;
-import com.videostore.videostore.domain.model.user.valueobject.*;
-import com.videostore.videostore.domain.repository.UserRepository;
+import com.videostore.videostore.integration.AbstractIntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
-import org.springframework.http.MediaType;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@Transactional
-@Import(TestContainersConfiguration.class)
-class UserControllerIntegrationTest {
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+class UserControllerIntegrationTest extends AbstractIntegrationTest {
 
     private Long user1Id;
 
     @BeforeEach
     void setUp() throws Exception {
-        user1Id = registerUser("user1", "user1@test.com", "Password12345");
+        user1Id = registerUser("User", "Example", "user1", "user1@test.com", "Password12345");
     }
 
     @Test
@@ -112,7 +86,7 @@ class UserControllerIntegrationTest {
     void getAllUsers_shouldReturnListForAdmin() throws Exception {
         String adminToken = registerAndLoginAdmin();
 
-        registerUser("user2", "user2@test.com", "Password67890");
+        registerUser("User", "Example", "user2", "user2@test.com", "Password67890");
 
         mockMvc.perform(get("/users")
                         .header("Authorization", "Bearer " + adminToken))
@@ -128,61 +102,5 @@ class UserControllerIntegrationTest {
         mockMvc.perform(get("/users")
                         .header("Authorization", "Bearer " + userToken))
                 .andExpect(status().isForbidden());
-    }
-
-    private Long registerUser(String username, String email, String password) throws Exception {
-        String body = """
-                {
-                  "name": "User",
-                  "surname": "Example",
-                  "username": "%s",
-                  "email": "%s",
-                  "password": "%s"
-                }
-                """.formatted(username, email, password);
-
-        String response = mockMvc.perform(post("/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(body))
-                .andExpect(status().isCreated())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        return JsonPath.parse(response).read("$.id", Long.class);
-    }
-
-    private String registerAndLoginAdmin() throws Exception {
-        User admin = User.create(
-                null,
-                new Name("Admin"),
-                new Surname("Example"),
-                new Username("admin"),
-                new Email("admin@test.com"),
-                new Password(passwordEncoder.encode("Admin1234")),
-                Role.ADMIN
-        );
-        userRepository.registerUser(admin);
-
-        return login("admin", "Admin1234");
-    }
-
-    private String login(String login, String password) throws Exception {
-        String body = """
-                {
-                  "loginIdentifier": "%s",
-                  "password": "%s"
-                }
-                """.formatted(login, password);
-
-        String response = mockMvc.perform(post("/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(body))
-                .andExpect(status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        return JsonPath.parse(response).read("$.token", String.class);
     }
 }

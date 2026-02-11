@@ -1,40 +1,15 @@
 package com.videostore.videostore.integration.rental;
 
-import com.jayway.jsonpath.JsonPath;
-import com.videostore.videostore.TestContainersConfiguration;
-import com.videostore.videostore.domain.model.user.Role;
-import com.videostore.videostore.domain.model.user.User;
-import com.videostore.videostore.domain.model.user.valueobject.*;
-import com.videostore.videostore.domain.repository.UserRepository;
+import com.videostore.videostore.integration.AbstractIntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@Transactional
-@Import(TestContainersConfiguration.class)
-public class RentalControllerIntegrationTest {
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+public class RentalControllerIntegrationTest extends AbstractIntegrationTest {
 
     private String adminToken;
     private String userToken;
@@ -45,13 +20,13 @@ public class RentalControllerIntegrationTest {
     void setUp() throws Exception {
         adminToken = registerAndLoginAdmin();
 
-        userId = registerUser("user1", "user1@test.com", "Password12345");
+        userId = registerUser("User", "Example", "user1", "user1@test.com", "Password12345");
         userToken = login("user1", "Password12345");
     }
 
     @Test
     void rentMovie_shouldWorkForAuthenticatedUser() throws Exception {
-        Long movieId = addMovie("Movie1", 1);
+        Long movieId = addMovie(adminToken, "Movie 1", 2000, "Action", 120, "Director A", "Synopsis 1", 1);
 
         mockMvc.perform(post("/rentals")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -62,7 +37,7 @@ public class RentalControllerIntegrationTest {
 
     @Test
     void rentMovie_shouldFailForUnauthenticatedUser() throws Exception {
-        Long movieId = addMovie("Movie 1", 1);
+        Long movieId = addMovie(adminToken, "Movie 1", 2000, "Action", 120, "Director A", "Synopsis 1", 1);
 
         mockMvc.perform(post("/rentals")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -81,7 +56,7 @@ public class RentalControllerIntegrationTest {
 
     @Test
     void rentMovie_shouldFailWhenMovieNotAvailable() throws Exception {
-        Long movieId = addMovie("Movie 1", 1);
+        Long movieId = addMovie(adminToken, "Movie 1", 2000, "Action", 120, "Director A", "Synopsis 1", 1);
 
         mockMvc.perform(post("/rentals")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -89,7 +64,7 @@ public class RentalControllerIntegrationTest {
                         .header("Authorization", "Bearer " + userToken))
                 .andExpect(status().isCreated());
 
-        registerUser("user2", "user2@test.com", "Password67890");
+        registerUser("User B", "Example B", "user2", "user2@test.com", "Password67890");
         String user2Token = login("user2", "Password67890");
 
         mockMvc.perform(post("/rentals")
@@ -101,7 +76,7 @@ public class RentalControllerIntegrationTest {
 
     @Test
     void rentMovie_shouldFailWhenMovieAlreadyRentedByUser() throws Exception {
-        Long movieId = addMovie("Movie 1", 2);
+        Long movieId = addMovie(adminToken, "Movie 1", 2000, "Action", 120, "Director A", "Synopsis 1", 2);
 
         mockMvc.perform(post("/rentals")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -118,7 +93,7 @@ public class RentalControllerIntegrationTest {
 
     @Test
     void returnMovie_shouldWorkForAuthenticatedUser() throws Exception {
-        Long movieId = addMovie("Movie1", 1);
+        Long movieId = addMovie(adminToken, "Movie 1", 2000, "Action", 120, "Director A", "Synopsis 1", 1);
 
         rentMovie(userToken, movieId);
 
@@ -142,10 +117,10 @@ public class RentalControllerIntegrationTest {
 
     @Test
     void getMyRentals_shouldReturnListForAuthenticatedUser() throws Exception {
-        Long movie1Id = addMovie("Movie 1", 1);
+        Long movie1Id = addMovie(adminToken, "Movie 1", 2000, "Action", 120, "Director A", "Synopsis 1", 1);
         rentMovie(userToken, movie1Id);
 
-        Long movie2Id = addMovie("Movie 2", 1);
+        Long movie2Id = addMovie(adminToken, "Movie 2", 2000, "Action", 120, "Director A", "Synopsis 1", 1);
         rentMovie(userToken, movie2Id);
 
         mockMvc.perform(get("/me/rentals")
@@ -172,10 +147,10 @@ public class RentalControllerIntegrationTest {
 
     @Test
     void getRentalsByUser_shouldReturnListForAdmin() throws Exception {
-        Long movie1Id = addMovie("Movie 1", 1);
+        Long movie1Id = addMovie(adminToken, "Movie 1", 2000, "Action", 120, "Director A", "Synopsis 1", 1);
         rentMovie(userToken, movie1Id);
 
-        Long movie2Id = addMovie("Movie 2", 1);
+        Long movie2Id = addMovie(adminToken, "Movie 2", 2000, "Action", 120, "Director A", "Synopsis 1", 1);
         rentMovie(userToken, movie2Id);
 
         mockMvc.perform(get("/users/{userId}/rentals", userId)
@@ -210,9 +185,9 @@ public class RentalControllerIntegrationTest {
 
     @Test
     void getRentalsByMovie_shouldReturnListForAdmin() throws Exception {
-        Long movieId = addMovie("Movie 1", 2);
+        Long movieId = addMovie(adminToken, "Movie 1", 2000, "Action", 120, "Director A", "Synopsis 1", 2);
 
-        registerUser("user2", "user2@test.com", "Password67890");
+        registerUser("User B", "Example B", "user2", "user2@test.com", "Password67890");
         String user2Token = login("user2", "Password67890");
 
         rentMovie(userToken, movieId);
@@ -227,7 +202,7 @@ public class RentalControllerIntegrationTest {
 
     @Test
     void getRentalsByMovie_shouldReturnEmptyListWhenMovieHasNoRentals() throws Exception {
-        Long movieId = addMovie("Movie 1", 2);
+        Long movieId = addMovie(adminToken, "Movie 1", 2000, "Action", 120, "Director A", "Synopsis 1", 2);
 
         mockMvc.perform(get("/movies/{movieId}/rentals", movieId)
                         .header("Authorization", "Bearer " + adminToken))
@@ -248,102 +223,5 @@ public class RentalControllerIntegrationTest {
         mockMvc.perform(get("/movies/{movieId}/rentals", 999L)
                         .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isNotFound());
-    }
-
-    private String registerAndLoginAdmin() throws Exception {
-        User admin = User.create(
-                null,
-                new Name("Admin"),
-                new Surname("Example"),
-                new Username("admin"),
-                new Email("admin@test.com"),
-                new Password(passwordEncoder.encode("Admin1234")),
-                Role.ADMIN
-        );
-        userRepository.registerUser(admin);
-
-        return login("admin", "Admin1234");
-    }
-
-    private Long registerUser(String username, String email, String password) throws Exception {
-        String body = """
-                {
-                  "name": "User",
-                  "surname": "Example",
-                  "username": "%s",
-                  "email": "%s",
-                  "password": "%s"
-                }
-                """.formatted(username, email, password);
-
-        String response = mockMvc.perform(post("/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(body))
-                .andExpect(status().isCreated())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        return JsonPath.parse(response).read("$.id", Long.class);
-    }
-
-    private String login(String login, String password) throws Exception {
-        String body = """
-                {
-                  "loginIdentifier": "%s",
-                  "password": "%s"
-                }
-                """.formatted(login, password);
-
-        String response = mockMvc.perform(post("/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(body))
-                .andExpect(status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        return JsonPath.parse(response).read("$.token", String.class);
-    }
-
-    private Long addMovie(String title, int numberOfCopies) throws Exception {
-        String body = """
-                {
-                  "title": "%s",
-                  "year": 2000,
-                  "genre": "Action",
-                  "duration": 120,
-                  "director": "Director",
-                  "synopsis": "Synopsis",
-                  "numberOfCopies": %d
-                }
-                """.formatted(title, numberOfCopies);
-
-        String response = mockMvc.perform(post("/movies")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(body)
-                        .header("Authorization", "Bearer " + adminToken))
-                .andExpect(status().isCreated())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        return JsonPath.parse(response).read("$.id", Long.class);
-    }
-
-    private void rentMovie(String userToken, Long movieId) throws Exception {
-        mockMvc.perform(post("/rentals")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(rentalBody(movieId))
-                        .header("Authorization", "Bearer " + userToken))
-                .andExpect(status().isCreated());
-    }
-
-    private String rentalBody(Long movieId) {
-        return """
-                {
-                  "movieId": %d
-                }
-                """.formatted(movieId);
     }
 }

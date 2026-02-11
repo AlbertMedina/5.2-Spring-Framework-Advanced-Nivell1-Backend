@@ -1,40 +1,15 @@
 package com.videostore.videostore.integration.favourite;
 
-import com.jayway.jsonpath.JsonPath;
-import com.videostore.videostore.TestContainersConfiguration;
-import com.videostore.videostore.domain.model.user.Role;
-import com.videostore.videostore.domain.model.user.User;
-import com.videostore.videostore.domain.model.user.valueobject.*;
-import com.videostore.videostore.domain.repository.UserRepository;
+import com.videostore.videostore.integration.AbstractIntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@Transactional
-@Import(TestContainersConfiguration.class)
-public class FavouriteControllerIntegrationTest {
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+public class FavouriteControllerIntegrationTest extends AbstractIntegrationTest {
 
     private String adminToken;
     private String userToken;
@@ -42,12 +17,12 @@ public class FavouriteControllerIntegrationTest {
     @BeforeEach
     void setUp() throws Exception {
         adminToken = registerAndLoginAdmin();
-        userToken = registerAndLoginUser();
+        userToken = registerAndLoginUser("User", "Example", "user1", "user1@test.com", "Password12345");
     }
 
     @Test
     void addFavourite_shouldWorkForAuthenticatedUser() throws Exception {
-        Long movieId = addMovie("Movie 1", "Action");
+        Long movieId = addMovie(adminToken, "Movie 1", 2000, "Action", 120, "Director A", "Synopsis 1", 1);
 
         String body = favouriteBody(movieId);
 
@@ -60,7 +35,7 @@ public class FavouriteControllerIntegrationTest {
 
     @Test
     void addFavourite_shouldFailForUnauthenticatedUser() throws Exception {
-        Long movieId = addMovie("Movie 1", "Action");
+        Long movieId = addMovie(adminToken, "Movie 1", 2000, "Action", 120, "Director A", "Synopsis 1", 1);
 
         String body = favouriteBody(movieId);
 
@@ -83,7 +58,7 @@ public class FavouriteControllerIntegrationTest {
 
     @Test
     void addFavourite_shouldFailWhenFavouriteAlreadyExists() throws Exception {
-        Long movieId = addMovie("Movie 1", "Action");
+        Long movieId = addMovie(adminToken, "Movie 1", 2000, "Action", 120, "Director A", "Synopsis 1", 1);
 
         String body = favouriteBody(movieId);
 
@@ -102,8 +77,8 @@ public class FavouriteControllerIntegrationTest {
 
     @Test
     void removeFavourite_shouldWorkForAuthenticatedUser() throws Exception {
-        Long movieId = addMovie("Movie 1", "Action");
-        addFavourite(movieId);
+        Long movieId = addMovie(adminToken, "Movie 1", 2000, "Action", 120, "Director A", "Synopsis 1", 1);
+        addFavourite(userToken, movieId);
 
         mockMvc.perform(delete("/favourites/{movieId}", movieId)
                         .header("Authorization", "Bearer " + userToken))
@@ -112,8 +87,8 @@ public class FavouriteControllerIntegrationTest {
 
     @Test
     void removeFavourite_shouldFailForUnauthenticatedUser() throws Exception {
-        Long movieId = addMovie("Movie 1", "Action");
-        addFavourite(movieId);
+        Long movieId = addMovie(adminToken, "Movie 1", 2000, "Action", 120, "Director A", "Synopsis 1", 1);
+        addFavourite(userToken, movieId);
 
         mockMvc.perform(delete("/favourites/{movieId}", movieId))
                 .andExpect(status().isUnauthorized());
@@ -128,11 +103,11 @@ public class FavouriteControllerIntegrationTest {
 
     @Test
     void getMyFavourites_shouldReturnListForAuthenticatedUser() throws Exception {
-        Long movie1Id = addMovie("Movie 1", "Action");
-        addFavourite(movie1Id);
+        Long movie1Id = addMovie(adminToken, "Movie 1", 2000, "Action", 120, "Director A", "Synopsis 1", 1);
+        addFavourite(userToken, movie1Id);
 
-        Long movie2Id = addMovie("Movie 2", "Drama");
-        addFavourite(movie2Id);
+        Long movie2Id = addMovie(adminToken, "Movie 2", 2010, "Drama", 100, "Director B", "Synopsis 2", 1);
+        addFavourite(userToken, movie2Id);
 
         mockMvc.perform(get("/me/favourites")
                         .header("Authorization", "Bearer " + userToken))
@@ -154,99 +129,5 @@ public class FavouriteControllerIntegrationTest {
     void getMyFavourites_shouldFailForUnauthenticatedUser() throws Exception {
         mockMvc.perform(get("/me/favourites"))
                 .andExpect(status().isUnauthorized());
-    }
-
-    private String registerAndLoginAdmin() throws Exception {
-        User admin = User.create(
-                null,
-                new Name("Admin"),
-                new Surname("Example"),
-                new Username("admin"),
-                new Email("admin@test.com"),
-                new Password(passwordEncoder.encode("Admin1234")),
-                Role.ADMIN
-        );
-        userRepository.registerUser(admin);
-
-        return login("admin", "Admin1234");
-    }
-
-    private String registerAndLoginUser() throws Exception {
-        String body = """
-                {
-                  "name": "User",
-                  "surname": "Example",
-                  "username": "user1",
-                  "email": "user1@test.com",
-                  "password": "Password12345"
-                }
-                """;
-
-        mockMvc.perform(post("/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(body))
-                .andExpect(status().isCreated());
-
-        return login("user1", "Password12345");
-    }
-
-    private String login(String login, String password) throws Exception {
-        String body = """
-                {
-                  "loginIdentifier": "%s",
-                  "password": "%s"
-                }
-                """.formatted(login, password);
-
-        String response = mockMvc.perform(post("/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(body))
-                .andExpect(status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        return JsonPath.parse(response).read("$.token", String.class);
-    }
-
-    private Long addMovie(String title, String genre) throws Exception {
-        String body = """
-                {
-                  "title": "%s",
-                  "year": 2000,
-                  "genre": "%s",
-                  "duration": 120,
-                  "director": "Director",
-                  "synopsis": "Synopsis",
-                  "numberOfCopies": 1
-                }
-                """.formatted(title, genre);
-
-        String response = mockMvc.perform(post("/movies")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(body)
-                        .header("Authorization", "Bearer " + adminToken))
-                .andExpect(status().isCreated())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        return JsonPath.parse(response).read("$.id", Long.class);
-    }
-
-    private void addFavourite(Long movieId) throws Exception {
-        mockMvc.perform(post("/favourites")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(favouriteBody(movieId))
-                        .header("Authorization", "Bearer " + userToken))
-                .andExpect(status().isCreated());
-    }
-
-    private String favouriteBody(Long movieId) {
-        return """
-                {
-                  "movieId": %d
-                }
-                """.formatted(movieId);
     }
 }

@@ -1,39 +1,18 @@
 package com.videostore.videostore.integration.auth;
 
-import com.videostore.videostore.TestContainersConfiguration;
+import com.videostore.videostore.integration.AbstractIntegrationTest;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@Transactional
-@Import(TestContainersConfiguration.class)
-class AuthControllerIntegrationTest {
-
-    @Autowired
-    private MockMvc mockMvc;
+class AuthControllerIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     void register_shouldCreateUserInDatabase() throws Exception {
-        String body = """
-                    {
-                      "name": "User",
-                      "surname": "Example",
-                      "username": "user123",
-                      "email": "user123@test.com",
-                      "password": "password12345"
-                    }
-                """;
+        String body = registerBody("User", "Example", "user1", "user1@test.com", "Password12345");
 
         mockMvc.perform(post("/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -43,30 +22,14 @@ class AuthControllerIntegrationTest {
 
     @Test
     void register_shouldFailWithExistingUsername() throws Exception {
-        String body = """
-                    {
-                      "name": "User",
-                      "surname": "Example",
-                      "username": "user123",
-                      "email": "user123@test.com",
-                      "password": "password12345"
-                    }
-                """;
+        String body = registerBody("User", "Example", "user1", "user1@test.com", "Password12345");
 
         mockMvc.perform(post("/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().isCreated());
 
-        body = """
-                    {
-                      "name": "User",
-                      "surname": "Example",
-                      "username": "user123",
-                      "email": "user12345@test.com",
-                      "password": "password12345"
-                    }
-                """;
+        body = registerBody("User 2", "Example 2", "user1", "user2@test.com", "Password67890");
 
         mockMvc.perform(post("/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -76,30 +39,14 @@ class AuthControllerIntegrationTest {
 
     @Test
     void register_shouldFailWithExistingEmail() throws Exception {
-        String body = """
-                    {
-                      "name": "User",
-                      "surname": "Example",
-                      "username": "user123",
-                      "email": "user123@test.com",
-                      "password": "password12345"
-                    }
-                """;
+        String body = registerBody("User", "Example", "user1", "user1@test.com", "Password12345");
 
         mockMvc.perform(post("/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().isCreated());
 
-        body = """
-                    {
-                      "name": "User",
-                      "surname": "Example",
-                      "username": "user12345",
-                      "email": "user123@test.com",
-                      "password": "password12345"
-                    }
-                """;
+        body = registerBody("User 2", "Example 2", "user2", "user1@test.com", "Password67890");
 
         mockMvc.perform(post("/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -109,15 +56,7 @@ class AuthControllerIntegrationTest {
 
     @Test
     void register_shouldFailWithInvalidUsername() throws Exception {
-        String body = """
-                    {
-                      "name": "User",
-                      "surname": "Example",
-                      "username": "invalid username",
-                      "email": "user123@test.com",
-                      "password": "password12345"
-                    }
-                """;
+        String body = registerBody("User", "Example", "invalid username", "user1@test.com", "Password12345");
 
         mockMvc.perform(post("/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -127,15 +66,7 @@ class AuthControllerIntegrationTest {
 
     @Test
     void register_shouldFailWithInvalidEmail() throws Exception {
-        String body = """
-                    {
-                      "name": "User",
-                      "surname": "Example",
-                      "username": "user123",
-                      "email": "invalid-email",
-                      "password": "password12345"
-                    }
-                """;
+        String body = registerBody("User", "Example", "user1", "invalid-email", "Password12345");
 
         mockMvc.perform(post("/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -145,15 +76,7 @@ class AuthControllerIntegrationTest {
 
     @Test
     void register_shouldFailWithInvalidPassword() throws Exception {
-        String body = """
-                    {
-                      "name": "User",
-                      "surname": "Example",
-                      "username": "user123",
-                      "email": "user123@test.com",
-                      "password": "invalid-password"
-                    }
-                """;
+        String body = registerBody("User", "Example", "user1", "user1@test.com", "invalid-password");
 
         mockMvc.perform(post("/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -163,27 +86,14 @@ class AuthControllerIntegrationTest {
 
     @Test
     void login_shouldWorkWithValidUsernameAndPassword() throws Exception {
-        String body = """
-                    {
-                      "name": "User",
-                      "surname": "Example",
-                      "username": "user123",
-                      "email": "user123@test.com",
-                      "password": "password12345"
-                    }
-                """;
+        String body = registerBody("User", "Example", "user1", "user1@test.com", "Password12345");
 
         mockMvc.perform(post("/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().isCreated());
 
-        String loginBody = """
-                    {
-                      "loginIdentifier": "user123",
-                      "password": "password12345"
-                    }
-                """;
+        String loginBody = loginBody("user1", "Password12345");
 
         mockMvc.perform(post("/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -194,27 +104,14 @@ class AuthControllerIntegrationTest {
 
     @Test
     void login_shouldWorkWithValidEmailAndPassword() throws Exception {
-        String body = """
-                    {
-                      "name": "User",
-                      "surname": "Example",
-                      "username": "user123",
-                      "email": "user123@test.com",
-                      "password": "password12345"
-                    }
-                """;
+        String body = registerBody("User", "Example", "user1", "user1@test.com", "Password12345");
 
         mockMvc.perform(post("/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().isCreated());
 
-        String loginBody = """
-                    {
-                      "loginIdentifier": "user123@test.com",
-                      "password": "password12345"
-                    }
-                """;
+        String loginBody = loginBody("user1@test.com", "Password12345");
 
         mockMvc.perform(post("/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -225,27 +122,14 @@ class AuthControllerIntegrationTest {
 
     @Test
     void login_shouldFailWithNonexistentUsernameOrEmail() throws Exception {
-        String body = """
-                    {
-                      "name": "User",
-                      "surname": "Example",
-                      "username": "user123",
-                      "email": "user123@test.com",
-                      "password": "password12345"
-                    }
-                """;
+        String body = registerBody("User", "Example", "user1", "user1@test.com", "Password12345");
 
         mockMvc.perform(post("/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().isCreated());
 
-        String loginBody = """
-                    {
-                      "loginIdentifier": "example",
-                      "password": "password12345"
-                    }
-                """;
+        String loginBody = loginBody("example", "Password12345");
 
         mockMvc.perform(post("/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -255,27 +139,14 @@ class AuthControllerIntegrationTest {
 
     @Test
     void login_shouldFailWithIncorrectPassword() throws Exception {
-        String body = """
-                    {
-                      "name": "User",
-                      "surname": "Example",
-                      "username": "user123",
-                      "email": "user123@test.com",
-                      "password": "password12345"
-                    }
-                """;
+        String body = registerBody("User", "Example", "user1", "user1@test.com", "Password12345");
 
         mockMvc.perform(post("/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().isCreated());
 
-        String loginBody = """
-                    {
-                      "loginIdentifier": "user123",
-                      "password": "example"
-                    }
-                """;
+        String loginBody = loginBody("user1", "example");
 
         mockMvc.perform(post("/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)

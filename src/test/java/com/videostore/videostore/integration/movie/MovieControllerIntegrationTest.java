@@ -1,40 +1,15 @@
 package com.videostore.videostore.integration.movie;
 
-import com.jayway.jsonpath.JsonPath;
-import com.videostore.videostore.TestContainersConfiguration;
-import com.videostore.videostore.domain.model.user.Role;
-import com.videostore.videostore.domain.model.user.User;
-import com.videostore.videostore.domain.model.user.valueobject.*;
-import com.videostore.videostore.domain.repository.UserRepository;
+import com.videostore.videostore.integration.AbstractIntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@Transactional
-@Import(TestContainersConfiguration.class)
-public class MovieControllerIntegrationTest {
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+public class MovieControllerIntegrationTest extends AbstractIntegrationTest {
 
     private String adminToken;
 
@@ -45,17 +20,7 @@ public class MovieControllerIntegrationTest {
 
     @Test
     void addMovie_shouldWorkForAdmin() throws Exception {
-        String body = """
-                {
-                  "title": "title",
-                  "year": 2000,
-                  "genre": "genre",
-                  "duration": 120,
-                  "director": "director",
-                  "synopsis": "synopsis",
-                  "numberOfCopies": 2
-                }
-                """;
+        String body = movieBody("Movie 1", 2000, "Action", 120, "Director A", "Synopsis 1", 2);
 
         mockMvc.perform(post("/movies")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -66,19 +31,9 @@ public class MovieControllerIntegrationTest {
 
     @Test
     void addMovie_shouldFailForNonAdmin() throws Exception {
-        String userToken = registerAndLoginUser();
+        String userToken = registerAndLoginUser("User", "Example", "user1", "user1@test.com", "Password12345");
 
-        String body = """
-                {
-                  "title": "title",
-                  "year": 2000,
-                  "genre": "genre",
-                  "duration": 120,
-                  "director": "director",
-                  "synopsis": "synopsis",
-                  "numberOfCopies": 2
-                }
-                """;
+        String body = movieBody("Movie 1", 2000, "Action", 120, "Director A", "Synopsis 1", 2);
 
         mockMvc.perform(post("/movies")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -89,17 +44,7 @@ public class MovieControllerIntegrationTest {
 
     @Test
     void addMovie_shouldFailWithInvalidTitle() throws Exception {
-        String body = """
-                {
-                  "title": "",
-                  "year": 2000,
-                  "genre": "genre",
-                  "duration": 120,
-                  "director": "director",
-                  "synopsis": "synopsys",
-                  "numberOfCopies": 2
-                }
-                """;
+        String body = movieBody("", 2000, "Action", 120, "Director A", "Synopsis 1", 2);
 
         mockMvc.perform(post("/movies")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -110,17 +55,7 @@ public class MovieControllerIntegrationTest {
 
     @Test
     void addMovie_shouldFailWithInvalidYear() throws Exception {
-        String body = """
-                {
-                  "title": "title",
-                  "year": -1,
-                  "genre": "genre",
-                  "duration": 120,
-                  "director": "director",
-                  "synopsis": "synopsys",
-                  "numberOfCopies": 2
-                }
-                """;
+        String body = movieBody("Movie 1", -1, "Action", 120, "Director A", "Synopsis 1", 2);
 
         mockMvc.perform(post("/movies")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -131,17 +66,7 @@ public class MovieControllerIntegrationTest {
 
     @Test
     void addMovie_shouldFailWithInvalidGenre() throws Exception {
-        String body = """
-                {
-                  "title": "title",
-                  "year": 2000,
-                  "genre": "_genre_",
-                  "duration": 120,
-                  "director": "director",
-                  "synopsis": "synopsys",
-                  "numberOfCopies": 2
-                }
-                """;
+        String body = movieBody("Movie 1", 2000, "_genre_", 120, "Director A", "Synopsis 1", 2);
 
         mockMvc.perform(post("/movies")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -152,17 +77,7 @@ public class MovieControllerIntegrationTest {
 
     @Test
     void addMovie_shouldFailWithInvalidDuration() throws Exception {
-        String body = """
-                {
-                  "title": "title",
-                  "year": 2000,
-                  "genre": "genre",
-                  "duration": -1,
-                  "director": "director",
-                  "synopsis": "synopsys",
-                  "numberOfCopies": 2
-                }
-                """;
+        String body = movieBody("Movie 1", 2000, "Action", -1, "Director A", "Synopsis 1", 2);
 
         mockMvc.perform(post("/movies")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -173,17 +88,7 @@ public class MovieControllerIntegrationTest {
 
     @Test
     void addMovie_shouldFailWithInvalidDirector() throws Exception {
-        String body = """
-                {
-                  "title": "title",
-                  "year": 2000,
-                  "genre": "genre",
-                  "duration": 120,
-                  "director": "di/rector",
-                  "synopsis": "synopsys",
-                  "numberOfCopies": 2
-                }
-                """;
+        String body = movieBody("Movie 1", 2000, "Action", 120, "Di/rector", "Synopsis 1", 2);
 
         mockMvc.perform(post("/movies")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -194,17 +99,7 @@ public class MovieControllerIntegrationTest {
 
     @Test
     void addMovie_shouldFailWithInvalidSynopsis() throws Exception {
-        String body = """
-                {
-                  "title": "title",
-                  "year": 2000,
-                  "genre": "genre",
-                  "duration": 120,
-                  "director": "director",
-                  "synopsis": "",
-                  "numberOfCopies": 2
-                }
-                """;
+        String body = movieBody("Movie 1", 2000, "Action", 120, "Director A", "", 2);
 
         mockMvc.perform(post("/movies")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -215,17 +110,7 @@ public class MovieControllerIntegrationTest {
 
     @Test
     void addMovie_shouldFailWithInvalidNumberOfCopies() throws Exception {
-        String body = """
-                {
-                  "title": "title",
-                  "year": 2000,
-                  "genre": "genre",
-                  "duration": 120,
-                  "director": "director",
-                  "synopsis": "synopsis",
-                  "numberOfCopies": -1
-                }
-                """;
+        String body = movieBody("Movie 1", 2000, "Action", 120, "Director A", "Synopsis 1", -1);
 
         mockMvc.perform(post("/movies")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -236,18 +121,9 @@ public class MovieControllerIntegrationTest {
 
     @Test
     void updateMovieInfo_shouldWorkForAdmin() throws Exception {
-        Long movieId = addMovie("Movie 1", "Action", 2);
+        Long movieId = addMovie(adminToken, "Movie 1", 2000, "Action", 120, "Director A", "Synopsis 1", 2);
 
-        String body = """
-                {
-                  "title": "Movie 2",
-                  "year": 2000,
-                  "genre": "Drama",
-                  "duration": 120,
-                  "director": "Director",
-                  "synopsis": "Synopsis"
-                }
-                """;
+        String body = updateMovieInfoBody("Movie 2", 2000, "Drama", 120, "Director A", "Synopsis 1");
 
         mockMvc.perform(put("/movies/{movieId}", movieId)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -260,20 +136,11 @@ public class MovieControllerIntegrationTest {
 
     @Test
     void updateMovieInfo_shouldFailForNonAdmin() throws Exception {
-        String userToken = registerAndLoginUser();
+        String userToken = registerAndLoginUser("User", "Example", "user1", "user1@test.com", "Password12345");
 
-        Long movieId = addMovie("Movie 1", "Action", 2);
+        Long movieId = addMovie(adminToken, "Movie 1", 2000, "Action", 120, "Director A", "Synopsis 1", 2);
 
-        String body = """
-                {
-                  "title": "Movie 2",
-                  "year": 2000,
-                  "genre": "Drama",
-                  "duration": 120,
-                  "director": "Director",
-                  "synopsis": "Synopsis"
-                }
-                """;
+        String body = updateMovieInfoBody("Movie 2", 2000, "Drama", 120, "Director A", "Synopsis 1");
 
         mockMvc.perform(put("/movies/{movieId}", movieId)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -284,18 +151,9 @@ public class MovieControllerIntegrationTest {
 
     @Test
     void updateMovieInfo_shouldFailWhenMovieDoesNotExist() throws Exception {
-        addMovie("Movie 1", "Action", 2);
+        addMovie(adminToken, "Movie 1", 2000, "Action", 120, "Director A", "Synopsis 1", 2);
 
-        String body = """
-                {
-                  "title": "Movie 2",
-                  "year": 2000,
-                  "genre": "Drama",
-                  "duration": 120,
-                  "director": "Director",
-                  "synopsis": "Synopsis"
-                }
-                """;
+        String body = updateMovieInfoBody("Movie 2", 2010, "Drama", 100, "Director B", "Synopsis 2");
 
         mockMvc.perform(put("/movies/{movieId}", 999L)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -306,18 +164,9 @@ public class MovieControllerIntegrationTest {
 
     @Test
     void updateMovieInfo_shouldFailWithInvalidData() throws Exception {
-        Long movieId = addMovie("Movie 1", "Action", 2);
+        Long movieId = addMovie(adminToken, "Movie 1", 2000, "Action", 120, "Director A", "Synopsis 1", 2);
 
-        String body = """
-                {
-                  "title": "",
-                  "year": 2000,
-                  "genre": "Drama",
-                  "duration": 120,
-                  "director": "Director",
-                  "synopsis": "Synopsis"
-                }
-                """;
+        String body = updateMovieInfoBody("", 2010, "Action", 100, "Director B", "Synopsis 2");
 
         mockMvc.perform(put("/movies/{movieId}", movieId)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -328,7 +177,7 @@ public class MovieControllerIntegrationTest {
 
     @Test
     void removeMovie_shouldWorkForAdmin() throws Exception {
-        Long movieId = addMovie("Movie 1", "Action", 2);
+        Long movieId = addMovie(adminToken, "Movie 1", 2000, "Action", 120, "Director A", "Synopsis 1", 2);
 
         mockMvc.perform(delete("/movies/{movieId}", movieId)
                         .header("Authorization", "Bearer " + adminToken))
@@ -337,9 +186,9 @@ public class MovieControllerIntegrationTest {
 
     @Test
     void removeMovie_shouldFailForNonAdmin() throws Exception {
-        String userToken = registerAndLoginUser();
+        String userToken = registerAndLoginUser("User", "Example", "user1", "user1@test.com", "Password12345");
 
-        Long movieId = addMovie("Movie 1", "Action", 2);
+        Long movieId = addMovie(adminToken, "Movie 1", 2000, "Action", 120, "Director A", "Synopsis 1", 2);
 
         mockMvc.perform(delete("/movies/{movieId}", movieId)
                         .header("Authorization", "Bearer " + userToken))
@@ -348,7 +197,7 @@ public class MovieControllerIntegrationTest {
 
     @Test
     void removeMovie_shouldFailWhenMovieDoesNotExist() throws Exception {
-        addMovie("Movie 1", "Action", 2);
+        addMovie(adminToken, "Movie 1", 2000, "Action", 120, "Director A", "Synopsis 1", 2);
 
         mockMvc.perform(delete("/movies/{movieId}", 999L)
                         .header("Authorization", "Bearer " + adminToken))
@@ -357,9 +206,9 @@ public class MovieControllerIntegrationTest {
 
     @Test
     void removeMovie_shouldFailWhenMovieHasActiveRentals() throws Exception {
-        String userToken = registerAndLoginUser();
+        String userToken = registerAndLoginUser("User", "Example", "user1", "user1@test.com", "Password12345");
 
-        Long movieId = addMovie("Movie 1", "Action", 2);
+        Long movieId = addMovie(adminToken, "Movie 1", 2000, "Action", 120, "Director A", "Synopsis 1", 2);
 
         rentMovie(userToken, movieId);
 
@@ -370,9 +219,9 @@ public class MovieControllerIntegrationTest {
 
     @Test
     void getMovie_shouldReturnMovie() throws Exception {
-        String userToken = registerAndLoginUser();
+        String userToken = registerAndLoginUser("User", "Example", "user1", "user1@test.com", "Password12345");
 
-        Long movieId = addMovie("Movie 1", "Action", 2);
+        Long movieId = addMovie(adminToken, "Movie 1", 2000, "Action", 120, "Director A", "Synopsis 1", 2);
 
         mockMvc.perform(get("/movies/{movieId}", movieId)
                         .header("Authorization", "Bearer " + userToken))
@@ -382,9 +231,9 @@ public class MovieControllerIntegrationTest {
 
     @Test
     void getMovie_shouldFailWhenMovieDoesNotExist() throws Exception {
-        String userToken = registerAndLoginUser();
+        String userToken = registerAndLoginUser("User", "Example", "user1", "user1@test.com", "Password12345");
 
-        addMovie("Movie 1", "Action", 2);
+        addMovie(adminToken, "Movie 1", 2000, "Action", 120, "Director A", "Synopsis 1", 2);
 
         mockMvc.perform(get("/movies/{movieId}", 999L)
                         .header("Authorization", "Bearer " + userToken))
@@ -393,11 +242,11 @@ public class MovieControllerIntegrationTest {
 
     @Test
     void getAllMovies_shouldReturnPagedList() throws Exception {
-        String userToken = registerAndLoginUser();
+        String userToken = registerAndLoginUser("User", "Example", "user1", "user1@test.com", "Password12345");
 
-        addMovie("Movie 1", "Action", 2);
-        addMovie("Movie 2", "Action", 2);
-        addMovie("Movie 3", "Drama", 2);
+        addMovie(adminToken, "Movie 1", 2000, "Action", 120, "Director A", "Synopsis 1", 2);
+        addMovie(adminToken, "Movie 2", 2004, "Action", 110, "Director B", "Synopsis 2", 2);
+        addMovie(adminToken, "Movie 3", 2010, "Drama", 100, "Director C", "Synopsis 3", 2);
 
         mockMvc.perform(get("/movies")
                         .param("page", "0")
@@ -412,7 +261,7 @@ public class MovieControllerIntegrationTest {
 
     @Test
     void getAllMovies_shouldReturnEmptyListWhenNoMovies() throws Exception {
-        String userToken = registerAndLoginUser();
+        String userToken = registerAndLoginUser("User", "Example", "user1", "user1@test.com", "Password12345");
 
 
         mockMvc.perform(get("/movies")
@@ -428,11 +277,11 @@ public class MovieControllerIntegrationTest {
 
     @Test
     void getAllMovies_shouldFilterByGenre() throws Exception {
-        String userToken = registerAndLoginUser();
+        String userToken = registerAndLoginUser("User", "Example", "user1", "user1@test.com", "Password12345");
 
-        addMovie("Movie 1", "Action", 2);
-        addMovie("Movie 2", "Action", 2);
-        addMovie("Movie 3", "Drama", 2);
+        addMovie(adminToken, "Movie 1", 2000, "Action", 120, "Director A", "Synopsis 1", 2);
+        addMovie(adminToken, "Movie 2", 2004, "Action", 110, "Director B", "Synopsis 2", 2);
+        addMovie(adminToken, "Movie 3", 2010, "Drama", 100, "Director C", "Synopsis 3", 2);
 
         mockMvc.perform(get("/movies")
                         .param("page", "0")
@@ -448,11 +297,11 @@ public class MovieControllerIntegrationTest {
 
     @Test
     void getAllMovies_shouldFilterByTitle() throws Exception {
-        String userToken = registerAndLoginUser();
+        String userToken = registerAndLoginUser("User", "Example", "user1", "user1@test.com", "Password12345");
 
-        addMovie("Movie 1", "Action", 2);
-        addMovie("Movie 2", "Action", 2);
-        addMovie("Movie 3", "Drama", 2);
+        addMovie(adminToken, "Movie 1", 2000, "Action", 120, "Director A", "Synopsis 1", 2);
+        addMovie(adminToken, "Movie 2", 2004, "Action", 110, "Director B", "Synopsis 2", 2);
+        addMovie(adminToken, "Movie 3", 2010, "Drama", 100, "Director C", "Synopsis 3", 2);
 
         mockMvc.perform(get("/movies")
                         .param("page", "0")
@@ -468,11 +317,11 @@ public class MovieControllerIntegrationTest {
 
     @Test
     void getAllMovies_shouldFilterOnlyAvailableMovies() throws Exception {
-        String userToken = registerAndLoginUser();
+        String userToken = registerAndLoginUser("User", "Example", "user1", "user1@test.com", "Password12345");
 
-        Long movie1Id = addMovie("Movie 1", "Action", 1);
-        addMovie("Movie 2", "Action", 2);
-        addMovie("Movie 3", "Drama", 2);
+        Long movie1Id = addMovie(adminToken, "Movie 1", 2000, "Action", 120, "Director A", "Synopsis 1", 1);
+        addMovie(adminToken, "Movie 2", 2004, "Action", 110, "Director B", "Synopsis 2", 2);
+        addMovie(adminToken, "Movie 3", 2010, "Drama", 100, "Director C", "Synopsis 3", 2);
 
         rentMovie(userToken, movie1Id);
 
@@ -490,11 +339,11 @@ public class MovieControllerIntegrationTest {
 
     @Test
     void getAllMovies_shouldApplyMultipleFilters() throws Exception {
-        String userToken = registerAndLoginUser();
+        String userToken = registerAndLoginUser("User", "Example", "user1", "user1@test.com", "Password12345");
 
-        addMovie("Movie 1", "Action", 2);
-        addMovie("Movie 2", "Action", 2);
-        addMovie("Movie 3", "Drama", 2);
+        addMovie(adminToken, "Movie 1", 2000, "Action", 120, "Director A", "Synopsis 1", 2);
+        addMovie(adminToken, "Movie 2", 2004, "Action", 110, "Director B", "Synopsis 2", 2);
+        addMovie(adminToken, "Movie 3", 2010, "Drama", 100, "Director C", "Synopsis 3", 2);
 
         mockMvc.perform(get("/movies")
                         .param("page", "0")
@@ -511,11 +360,11 @@ public class MovieControllerIntegrationTest {
 
     @Test
     void getAllMovies_shouldSortAscending() throws Exception {
-        String userToken = registerAndLoginUser();
+        String userToken = registerAndLoginUser("User", "Example", "user1", "user1@test.com", "Password12345");
 
-        addMovie("Movie 1", "Action", 2);
-        addMovie("Movie 2", "Action", 2);
-        addMovie("Movie 3", "Drama", 2);
+        addMovie(adminToken, "Movie 1", 2000, "Action", 120, "Director A", "Synopsis 1", 2);
+        addMovie(adminToken, "Movie 2", 2004, "Action", 110, "Director B", "Synopsis 2", 2);
+        addMovie(adminToken, "Movie 3", 2010, "Drama", 100, "Director C", "Synopsis 3", 2);
 
         mockMvc.perform(get("/movies")
                         .param("page", "0")
@@ -532,11 +381,11 @@ public class MovieControllerIntegrationTest {
 
     @Test
     void getAllMovies_shouldSortDescending() throws Exception {
-        String userToken = registerAndLoginUser();
+        String userToken = registerAndLoginUser("User", "Example", "user1", "user1@test.com", "Password12345");
 
-        addMovie("Movie 1", "Action", 2);
-        addMovie("Movie 2", "Action", 2);
-        addMovie("Movie 3", "Drama", 2);
+        addMovie(adminToken, "Movie 1", 2000, "Action", 120, "Director A", "Synopsis 1", 2);
+        addMovie(adminToken, "Movie 2", 2004, "Action", 110, "Director B", "Synopsis 2", 2);
+        addMovie(adminToken, "Movie 3", 2010, "Drama", 100, "Director C", "Synopsis 3", 2);
 
         mockMvc.perform(get("/movies")
                         .param("page", "0")
@@ -553,17 +402,17 @@ public class MovieControllerIntegrationTest {
 
     @Test
     void getAllMovies_shouldSortByRating() throws Exception {
-        String userToken = registerAndLoginUser();
+        String userToken = registerAndLoginUser("User", "Example", "user1", "user1@test.com", "Password12345");
 
-        addMovie("Movie 1", "Action", 2);
+        addMovie(adminToken, "Movie 1", 2000, "Action", 120, "Director A", "Synopsis 1", 2);
 
-        Long movie2Id = addMovie("Movie 2", "Action", 2);
+        Long movie2Id = addMovie(adminToken, "Movie 2", 2004, "Action", 110, "Director B", "Synopsis 2", 2);
         rentMovie(userToken, movie2Id);
-        addReview(userToken, movie2Id, 5);
+        addReview(userToken, movie2Id, 5, "Comment 1");
 
-        Long movie3Id = addMovie("Movie 3", "Drama", 2);
+        Long movie3Id = addMovie(adminToken, "Movie 3", 2010, "Drama", 100, "Director C", "Synopsis 3", 2);
         rentMovie(userToken, movie3Id);
-        addReview(userToken, movie3Id, 4);
+        addReview(userToken, movie3Id, 4, "Comment 2");
 
         mockMvc.perform(get("/movies")
                         .param("page", "0")
@@ -580,11 +429,11 @@ public class MovieControllerIntegrationTest {
 
     @Test
     void getAllMovies_shouldFailWithInvalidPaginationParameters() throws Exception {
-        String userToken = registerAndLoginUser();
+        String userToken = registerAndLoginUser("User", "Example", "user1", "user1@test.com", "Password12345");
 
-        addMovie("Movie 1", "Action", 2);
-        addMovie("Movie 2", "Action", 2);
-        addMovie("Movie 3", "Drama", 2);
+        addMovie(adminToken, "Movie 1", 2000, "Action", 120, "Director A", "Synopsis 1", 2);
+        addMovie(adminToken, "Movie 2", 2004, "Action", 110, "Director B", "Synopsis 2", 2);
+        addMovie(adminToken, "Movie 3", 2010, "Drama", 100, "Director C", "Synopsis 3", 2);
 
         mockMvc.perform(get("/movies")
                         .param("page", "-1")
@@ -597,11 +446,11 @@ public class MovieControllerIntegrationTest {
 
     @Test
     void getAllMovies_shouldFailWithInvalidSortBy() throws Exception {
-        String userToken = registerAndLoginUser();
+        String userToken = registerAndLoginUser("User", "Example", "user1", "user1@test.com", "Password12345");
 
-        addMovie("Movie 1", "Action", 2);
-        addMovie("Movie 2", "Action", 2);
-        addMovie("Movie 3", "Drama", 2);
+        addMovie(adminToken, "Movie 1", 2000, "Action", 120, "Director A", "Synopsis 1", 2);
+        addMovie(adminToken, "Movie 2", 2004, "Action", 110, "Director B", "Synopsis 2", 2);
+        addMovie(adminToken, "Movie 3", 2010, "Drama", 100, "Director C", "Synopsis 3", 2);
 
         mockMvc.perform(get("/movies")
                         .param("page", "1")
@@ -610,113 +459,5 @@ public class MovieControllerIntegrationTest {
                         .param("ascending", "false")
                         .header("Authorization", "Bearer " + userToken))
                 .andExpect(status().isBadRequest());
-    }
-
-    private String registerAndLoginUser() throws Exception {
-        String body = """
-                {
-                  "name": "User",
-                  "surname": "Example",
-                  "username": "user1",
-                  "email": "user1@test.com",
-                  "password": "Password12345"
-                }
-                """;
-
-        mockMvc.perform(post("/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(body))
-                .andExpect(status().isCreated());
-
-        return login("user1", "Password12345");
-    }
-
-    private String registerAndLoginAdmin() throws Exception {
-        User admin = User.create(
-                null,
-                new Name("Admin"),
-                new Surname("Example"),
-                new Username("admin"),
-                new Email("admin@test.com"),
-                new Password(passwordEncoder.encode("Admin1234")),
-                Role.ADMIN
-        );
-        userRepository.registerUser(admin);
-
-        return login("admin", "Admin1234");
-    }
-
-    private String login(String login, String password) throws Exception {
-        String body = """
-                {
-                  "loginIdentifier": "%s",
-                  "password": "%s"
-                }
-                """.formatted(login, password);
-
-        String response = mockMvc.perform(post("/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(body))
-                .andExpect(status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        return JsonPath.parse(response).read("$.token", String.class);
-    }
-
-    private Long addMovie(String title, String genre, int numberOfCopies) throws Exception {
-        String body = """
-                {
-                  "title": "%s",
-                  "year": 2000,
-                  "genre": "%s",
-                  "duration": 120,
-                  "director": "Director",
-                  "synopsis": "Synopsis",
-                  "numberOfCopies": %d
-                }
-                """.formatted(title, genre, numberOfCopies);
-
-        String response = mockMvc.perform(post("/movies")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(body)
-                        .header("Authorization", "Bearer " + adminToken))
-                .andExpect(status().isCreated())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        return JsonPath.parse(response).read("$.id", Long.class);
-    }
-
-    private void rentMovie(String userToken, Long movieId) throws Exception {
-        String body = """
-                {
-                  "movieId": %d
-                }
-                """.formatted(movieId);
-
-        mockMvc.perform(post("/rentals")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(body)
-                        .header("Authorization", "Bearer " + userToken))
-                .andExpect(status().isCreated());
-    }
-
-    private void addReview(String userToken, Long movieId, int rating) throws Exception {
-        String body = """
-                {
-                  "movieId": %d,
-                  "rating": %d,
-                  "comment": "Comment"
-                }
-                """.formatted(movieId, rating);
-
-        mockMvc.perform(post("/reviews")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(body)
-                        .header("Authorization", "Bearer " + userToken))
-                .andExpect(status().isCreated());
     }
 }
