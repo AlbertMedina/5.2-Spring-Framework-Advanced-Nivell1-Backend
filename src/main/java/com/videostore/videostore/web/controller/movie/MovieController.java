@@ -15,6 +15,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -53,7 +54,7 @@ public class MovieController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MovieResponse> addMovie(
             @RequestPart("movie") @Valid AddMovieRequest request,
-            @RequestPart(value = "poster", required = false) MultipartFile poster
+            @RequestPart(value = "poster", required = false) @Nullable MultipartFile poster
     ) throws IOException {
         boolean hasPoster = poster != null && !poster.isEmpty();
 
