@@ -9,7 +9,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
@@ -22,3 +22,14 @@ cloudinary:
   cloud-name: "videostore_cloud"
   api-key: "1234567890"
   api-secret: "abcdefghijklmnop"
+
+logging:
+  level:
+    com.videostore: DEBUG
+    org.springframework: INFO
+    org.hibernate.SQL: WARN
+    org.hibernate.type.descriptor.sql.BasicBinder: WARN
+  file:
+    name: logs/videostore.log
+  pattern:
+    console: "%d{HH:mm:ss} %-5level %logger{36} - %msg%n"

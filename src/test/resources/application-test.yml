@@ -7,3 +7,10 @@ spring:
 CLOUDINARY_CLOUD_NAME: "test_cloud"
 CLOUDINARY_API_KEY: "test_key"
 CLOUDINARY_API_SECRET: "test_secret"
+
+logging:
+  level:
+    root: WARN
+    com.videostore: INFO
+  file:
+    enabled: false
