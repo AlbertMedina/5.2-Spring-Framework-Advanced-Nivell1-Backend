@@ -13,6 +13,8 @@ import com.videostore.videostore.web.controller.user.dto.response.UserResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,6 +25,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @Tag(name = "Authentication", description = "Operations related to user authentication (register/login)")
 public class AuthController {
+
+    private static final Logger log = LoggerFactory.getLogger(AuthController.class);
 
     private final RegisterUserUseCase registerUserUseCase;
     private final LoginUserUseCase loginUserUseCase;
@@ -40,6 +44,8 @@ public class AuthController {
     @Operation(summary = "Register a new user")
     @PostMapping("/auth/register")
     public ResponseEntity<UserResponse> registerUser(@RequestBody @Valid RegisterUserRequest request) {
+        log.info("Received request to register new user with username {}", request.username());
+
         RegisterUserCommand command = new RegisterUserCommand(
                 request.name(),
                 request.surname(),
@@ -49,6 +55,8 @@ public class AuthController {
         );
         User user = registerUserUseCase.execute(command);
 
+        log.info("User with id {} and username {} successfully registered", user.getId().value(), user.getUsername().value());
+
         UserResponse response = UserResponse.fromDomain(user);
         return ResponseEntity.status(201).body(response);
     }
@@ -56,11 +64,15 @@ public class AuthController {
     @Operation(summary = "Login a user")
     @PostMapping("/auth/login")
     public ResponseEntity<LoginResponse> loginUser(@RequestBody @Valid LoginUserRequest request) {
+        log.info("Received login request for identifier {}", request.loginIdentifier());
+
         LoginUserCommand command = new LoginUserCommand(
                 request.loginIdentifier(),
                 request.password()
         );
         User user = loginUserUseCase.execute(command);
+
+        log.info("User with id {} and username {} successfully logged in", user.getId().value(), user.getUsername().value());
 
         String token = jwtService.generateToken(user.getUsername().value());
         return ResponseEntity.ok(new LoginResponse(token));

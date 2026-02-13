@@ -13,6 +13,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
@@ -28,6 +30,8 @@ import java.util.List;
 @RestController
 @Tag(name = "Movies", description = "Operations related to movies")
 public class MovieController {
+
+    private static final Logger log = LoggerFactory.getLogger(MovieController.class);
 
     private final AddMovieUseCase addMovieUseCase;
     private final UpdateMovieInfoUseCase updateMovieInfoUseCase;
@@ -56,6 +60,8 @@ public class MovieController {
             @RequestPart("movie") @Valid AddMovieRequest request,
             @RequestPart(value = "poster", required = false) @Nullable MultipartFile poster
     ) throws IOException {
+        log.info("Admin requested to add movie '{}'", request.title());
+
         boolean hasPoster = poster != null && !poster.isEmpty();
 
         AddMovieCommand command = new AddMovieCommand(
@@ -71,8 +77,10 @@ public class MovieController {
         );
 
         Movie movie = addMovieUseCase.execute(command);
-        MovieResponse response = MovieResponse.fromDomain(movie);
 
+        log.info("Movie '{}' successfully added with id {}", movie.getTitle(), movie.getId().value());
+
+        MovieResponse response = MovieResponse.fromDomain(movie);
         return ResponseEntity.status(201).body(response);
     }
 
@@ -80,6 +88,8 @@ public class MovieController {
     @PutMapping("/movies/{movieId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MovieResponse> updateMovieInfo(@PathVariable @Positive Long movieId, @RequestBody @Valid UpdateMovieInfoRequest request) {
+        log.info("Admin requested to update movie id {}", movieId);
+
         UpdateMovieInfoCommand command = new UpdateMovieInfoCommand(
                 request.title(),
                 request.year(),
@@ -90,6 +100,8 @@ public class MovieController {
         );
         Movie movie = updateMovieInfoUseCase.execute(movieId, command);
 
+        log.info("Movie id {} successfully updated", movieId);
+
         MovieResponse response = MovieResponse.fromDomain(movie);
         return ResponseEntity.ok(response);
     }
@@ -98,7 +110,11 @@ public class MovieController {
     @DeleteMapping("/movies/{movieId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> removeMovie(@PathVariable @Positive Long movieId) {
+        log.info("Admin requested to remove movie id {}", movieId);
+
         removeMovieUseCase.execute(movieId);
+
+        log.info("Movie id {} successfully removed", movieId);
 
         return ResponseEntity.noContent().build();
     }
@@ -106,7 +122,11 @@ public class MovieController {
     @Operation(summary = "Get details of a movie in the video store")
     @GetMapping("/movies/{movieId}")
     public ResponseEntity<MovieResponse> getMovie(@PathVariable @Positive Long movieId) {
+        log.info("Request received to get movie id {}", movieId);
+
         Movie movie = getMovieUseCase.execute(movieId);
+
+        log.info("Successfully retrieved movie id {}", movieId);
 
         MovieResponse response = MovieResponse.fromDomain(movie);
         return ResponseEntity.ok(response);
@@ -122,9 +142,14 @@ public class MovieController {
                                                             @RequestParam MovieSortBy sortBy,
                                                             @RequestParam(defaultValue = "true") boolean ascending) {
 
+        log.info("Request received to get all movies, page {}, size {}, genre '{}', onlyAvailable {}, title '{}', sortBy {}, ascending {}",
+                page, size, genre, onlyAvailable, title, sortBy, ascending);
+
         GetAllMoviesCommand getAllMoviesCommand = new GetAllMoviesCommand(page, size, genre, onlyAvailable, title, sortBy, ascending);
         List<MovieResponse> response = getAllMoviesUseCase.execute(getAllMoviesCommand)
                 .stream().map(MovieResponse::fromDomain).toList();
+
+        log.info("Successfully retrieved {} movies", response.size());
 
         return ResponseEntity.ok(response);
     }

@@ -6,6 +6,8 @@ import com.videostore.videostore.web.controller.user.dto.response.UserResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Positive;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -18,6 +20,8 @@ import java.util.List;
 @RestController
 @Tag(name = "Users", description = "Operations related to users")
 public class UserController {
+
+    private static final Logger log = LoggerFactory.getLogger(UserController.class);
 
     private final RemoveUserUseCase removeUserUseCase;
     private final GetMeUseCase getMeUseCase;
@@ -36,10 +40,15 @@ public class UserController {
         this.getAllUsersUseCase = getAllUsersUseCase;
     }
 
+    @Operation(summary = "Remove a user")
     @DeleteMapping("/users/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> removeUser(@PathVariable @Positive Long userId) {
+        log.info("Admin requested deletion of user {}", userId);
+
         removeUserUseCase.execute(userId);
+
+        log.info("User with id {} successfully deleted", userId);
 
         return ResponseEntity.noContent().build();
     }
@@ -47,7 +56,11 @@ public class UserController {
     @Operation(summary = "Get details of authenticated user")
     @GetMapping("/me")
     public ResponseEntity<UserResponse> getMe(Authentication authentication) {
+        log.info("Request received to get the authenticated user");
+
         User user = getMeUseCase.execute(authentication.getName());
+
+        log.info("Authenticated user with id {} successfully retrieved", user.getId().value());
 
         UserResponse response = UserResponse.fromDomain(user);
         return ResponseEntity.ok(response);
@@ -57,7 +70,11 @@ public class UserController {
     @GetMapping("/users/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserResponse> getUser(@PathVariable @Positive Long userId) {
+        log.info("Admin requested user {}", userId);
+
         User user = getUserUseCase.execute(userId);
+
+        log.info("User with id {} successfully retrieved", userId);
 
         UserResponse response = UserResponse.fromDomain(user);
         return ResponseEntity.ok(response);
@@ -67,8 +84,12 @@ public class UserController {
     @GetMapping("/users")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<UserResponse>> getAllUsers() {
+        log.info("Admin requested all users");
+
         List<UserResponse> response = getAllUsersUseCase.execute()
                 .stream().map(UserResponse::fromDomain).toList();
+
+        log.info("All users successfully retrieved, total count: {}", response.size());
 
         return ResponseEntity.ok(response);
     }

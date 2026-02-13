@@ -12,6 +12,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
@@ -23,6 +25,8 @@ import java.util.List;
 @RestController
 @Tag(name = "Favourites", description = "Operations related to user favourite movies")
 public class FavouriteController {
+
+    private static final Logger log = LoggerFactory.getLogger(FavouriteController.class);
 
     private final AddFavouriteUseCase addFavouriteUseCase;
     private final RemoveFavouriteUseCase removeFavouriteUseCase;
@@ -41,8 +45,12 @@ public class FavouriteController {
     @Operation(summary = "Add a movie to the authenticated user favourites")
     @PostMapping("/favourites")
     public ResponseEntity<FavouriteResponse> addFavourite(@RequestBody @Valid AddFavouriteRequest request, Authentication authentication) {
+        log.info("User {} requested to add movie {} to favourites", authentication.getName(), request.movieId());
+
         AddFavouriteCommand command = new AddFavouriteCommand(authentication.getName(), request.movieId());
         Favourite favourite = addFavouriteUseCase.execute(command);
+
+        log.info("User {} successfully added movie {} to favourites", authentication.getName(), request.movieId());
 
         FavouriteResponse response = FavouriteResponse.fromDomain(favourite);
         return ResponseEntity.status(201).body(response);
@@ -51,8 +59,12 @@ public class FavouriteController {
     @Operation(summary = "Remove a movie from the authenticated user favourites")
     @DeleteMapping("/favourites/{movieId}")
     public ResponseEntity<Void> removeFavourite(@PathVariable @Positive Long movieId, Authentication authentication) {
+        log.info("User {} requested to remove movie {} from favourites", authentication.getName(), movieId);
+
         RemoveFavouriteCommand command = new RemoveFavouriteCommand(authentication.getName(), movieId);
         removeFavouriteUseCase.execute(command);
+
+        log.info("User {} successfully removed movie {} from favourites", authentication.getName(), movieId);
 
         return ResponseEntity.noContent().build();
     }
@@ -60,8 +72,12 @@ public class FavouriteController {
     @Operation(summary = "Get all favourite movies for the authenticated user")
     @GetMapping("/me/favourites")
     public ResponseEntity<List<FavouriteResponse>> getMyFavourites(Authentication authentication) {
+        log.info("User {} requested all their favourite movies", authentication.getName());
+
         List<FavouriteResponse> response = getMyFavouritesUseCase.execute(authentication.getName())
                 .stream().map(FavouriteResponse::fromDomain).toList();
+
+        log.info("User {} successfully retrieved {} favourite movies", authentication.getName(), response.size());
 
         return ResponseEntity.ok(response);
     }
