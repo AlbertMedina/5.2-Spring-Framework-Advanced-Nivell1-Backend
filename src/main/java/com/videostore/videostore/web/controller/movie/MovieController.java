@@ -40,19 +40,22 @@ public class MovieController {
     private final RemoveMovieUseCase removeMovieUseCase;
     private final GetMovieUseCase getMovieUseCase;
     private final GetAllMoviesUseCase getAllMoviesUseCase;
+    private final GetAllGenresUseCase getAllGenresUseCase;
 
     public MovieController(
             AddMovieUseCase addMovieUseCase,
             UpdateMovieInfoUseCase updateMovieInfoUseCase,
             RemoveMovieUseCase removeMovieUseCase,
             GetMovieUseCase getMovieUseCase,
-            GetAllMoviesUseCase getAllMoviesUseCase
+            GetAllMoviesUseCase getAllMoviesUseCase,
+            GetAllGenresUseCase getAllGenresUseCase
     ) {
         this.addMovieUseCase = addMovieUseCase;
         this.updateMovieInfoUseCase = updateMovieInfoUseCase;
         this.removeMovieUseCase = removeMovieUseCase;
         this.getMovieUseCase = getMovieUseCase;
         this.getAllMoviesUseCase = getAllMoviesUseCase;
+        this.getAllGenresUseCase = getAllGenresUseCase;
     }
 
     @Operation(summary = "Add a movie to the video store")
@@ -157,5 +160,17 @@ public class MovieController {
         log.info("Successfully retrieved {} movies", response.size());
 
         return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "Get all genres of movies in the video store")
+    @GetMapping("/movies/genres")
+    public ResponseEntity<List<String>> getAllGenres() {
+        log.info("Request received to get all genres");
+
+        List<String> genres = getAllGenresUseCase.execute();
+
+        log.info("Successfully retrieved {} genres", genres.size());
+
+        return ResponseEntity.ok(genres);
     }
 }

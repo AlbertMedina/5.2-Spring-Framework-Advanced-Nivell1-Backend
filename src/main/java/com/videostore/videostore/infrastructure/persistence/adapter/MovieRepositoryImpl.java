@@ -69,4 +69,9 @@ public class MovieRepositoryImpl implements MovieRepository {
     public void removeMovie(MovieId movieId) {
         movieRepositoryJPA.deleteById(movieId.value());
     }
+
+    @Override
+    public List<String> findAllGenres() {
+        return movieRepositoryJPA.findAllGenres();
+    }
 }

@@ -20,4 +20,6 @@ public interface MovieRepository {
     Movie updateMovie(Movie movie);
 
     void removeMovie(MovieId movieId);
+
+    List<String> findAllGenres();
 }
