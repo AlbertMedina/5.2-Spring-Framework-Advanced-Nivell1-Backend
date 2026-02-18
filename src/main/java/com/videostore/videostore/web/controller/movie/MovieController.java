@@ -4,11 +4,13 @@ import com.videostore.videostore.application.command.movie.AddMovieCommand;
 import com.videostore.videostore.application.command.movie.UpdateMovieInfoCommand;
 import com.videostore.videostore.application.port.in.movie.*;
 import com.videostore.videostore.application.command.movie.GetAllMoviesCommand;
+import com.videostore.videostore.domain.common.PagedResult;
 import com.videostore.videostore.domain.model.movie.Movie;
 import com.videostore.videostore.domain.model.movie.MovieSortBy;
 import com.videostore.videostore.web.controller.movie.dto.request.AddMovieRequest;
 import com.videostore.videostore.web.controller.movie.dto.request.UpdateMovieInfoRequest;
 import com.videostore.videostore.web.controller.movie.dto.response.MovieResponse;
+import com.videostore.videostore.web.controller.movie.dto.response.PagedMovieResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -150,22 +152,23 @@ public class MovieController {
 
     @Operation(summary = "Get all movies in the video store with filters and sorted")
     @GetMapping("/movies")
-    public ResponseEntity<List<MovieResponse>> getAllMovies(@RequestParam int page,
-                                                            @RequestParam int size,
-                                                            @RequestParam(required = false) String genre,
-                                                            @RequestParam(defaultValue = "false") boolean onlyAvailable,
-                                                            @RequestParam(required = false) String title,
-                                                            @RequestParam MovieSortBy sortBy,
-                                                            @RequestParam(defaultValue = "true") boolean ascending) {
+    public ResponseEntity<PagedMovieResponse> getAllMovies(@RequestParam int page,
+                                                           @RequestParam int size,
+                                                           @RequestParam(required = false) String genre,
+                                                           @RequestParam(defaultValue = "false") boolean onlyAvailable,
+                                                           @RequestParam(required = false) String title,
+                                                           @RequestParam MovieSortBy sortBy,
+                                                           @RequestParam(defaultValue = "true") boolean ascending) {
 
         log.info("Request received to get all movies, page {}, size {}, genre '{}', onlyAvailable {}, title '{}', sortBy {}, ascending {}",
                 page, size, genre, onlyAvailable, title, sortBy, ascending);
 
         GetAllMoviesCommand getAllMoviesCommand = new GetAllMoviesCommand(page, size, genre, onlyAvailable, title, sortBy, ascending);
-        List<MovieResponse> response = getAllMoviesUseCase.execute(getAllMoviesCommand)
-                .stream().map(MovieResponse::fromDomain).toList();
+        PagedResult<Movie> result = getAllMoviesUseCase.execute(getAllMoviesCommand);
 
-        log.info("Successfully retrieved {} movies", response.size());
+        log.info("Successfully retrieved {} movies", result.getSize());
+
+        PagedMovieResponse response = PagedMovieResponse.from(result);
 
         return ResponseEntity.ok(response);
     }

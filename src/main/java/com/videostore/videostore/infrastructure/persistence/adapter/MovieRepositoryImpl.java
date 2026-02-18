@@ -1,5 +1,6 @@
 package com.videostore.videostore.infrastructure.persistence.adapter;
 
+import com.videostore.videostore.domain.common.PagedResult;
 import com.videostore.videostore.domain.model.movie.Movie;
 import com.videostore.videostore.domain.model.movie.MovieSortBy;
 import com.videostore.videostore.domain.model.movie.valueobject.MovieId;
@@ -8,6 +9,7 @@ import com.videostore.videostore.infrastructure.persistence.entity.MovieEntity;
 import com.videostore.videostore.infrastructure.persistence.mapper.MovieMapper;
 import com.videostore.videostore.infrastructure.persistence.repository.MovieRepositoryJPA;
 import com.videostore.videostore.infrastructure.persistence.specification.movie.MovieSpecifications;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -37,7 +39,7 @@ public class MovieRepositoryImpl implements MovieRepository {
     }
 
     @Override
-    public List<Movie> findAll(int page, int size, String genre, boolean onlyAvailable, String title, MovieSortBy sortBy, boolean ascending) {
+    public PagedResult<Movie> findAll(int page, int size, String genre, boolean onlyAvailable, String title, MovieSortBy sortBy, boolean ascending) {
         Specification<MovieEntity> spec = MovieSpecifications.genreEquals(genre)
                 .and(MovieSpecifications.titleContains(title))
                 .and(MovieSpecifications.onlyAvailable(onlyAvailable))
@@ -45,10 +47,14 @@ public class MovieRepositoryImpl implements MovieRepository {
 
         Pageable pageable = PageRequest.of(page, size);
 
-        return movieRepositoryJPA.findAll(spec, pageable)
+        Page<MovieEntity> pageResult = movieRepositoryJPA.findAll(spec, pageable);
+
+        List<Movie> movies = pageResult.getContent()
                 .stream()
                 .map(MovieMapper::toDomain)
                 .toList();
+
+        return new PagedResult<>(movies, page, size, pageResult.getTotalElements());
     }
 
     @Override

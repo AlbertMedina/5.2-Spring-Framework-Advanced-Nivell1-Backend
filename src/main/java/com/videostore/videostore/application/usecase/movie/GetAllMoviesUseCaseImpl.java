@@ -2,6 +2,7 @@ package com.videostore.videostore.application.usecase.movie;
 
 import com.videostore.videostore.application.port.in.movie.GetAllMoviesUseCase;
 import com.videostore.videostore.application.command.movie.GetAllMoviesCommand;
+import com.videostore.videostore.domain.common.PagedResult;
 import com.videostore.videostore.domain.model.movie.Movie;
 import com.videostore.videostore.domain.repository.MovieRepository;
 import org.springframework.stereotype.Service;
@@ -20,7 +21,7 @@ public class GetAllMoviesUseCaseImpl implements GetAllMoviesUseCase {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Movie> execute(GetAllMoviesCommand getAllMoviesCommand) {
+    public PagedResult<Movie> execute(GetAllMoviesCommand getAllMoviesCommand) {
         return movieRepository.findAll(
                 getAllMoviesCommand.page(),
                 getAllMoviesCommand.size(),
