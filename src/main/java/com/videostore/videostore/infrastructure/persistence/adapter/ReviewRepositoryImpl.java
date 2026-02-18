@@ -1,5 +1,6 @@
 package com.videostore.videostore.infrastructure.persistence.adapter;
 
+import com.videostore.videostore.domain.common.RatingSummary;
 import com.videostore.videostore.domain.exception.notfound.MovieNotFoundException;
 import com.videostore.videostore.domain.exception.notfound.UserNotFoundException;
 import com.videostore.videostore.domain.model.movie.valueobject.MovieId;
@@ -62,6 +63,20 @@ public class ReviewRepositoryImpl implements ReviewRepository {
     @Override
     public void removeReview(ReviewId reviewId) {
         reviewRepositoryJPA.deleteById(reviewId.value());
+    }
+
+    @Override
+    public Optional<RatingSummary> getAverageRatingByMovieId(Long movieId) {
+        Object[] result = reviewRepositoryJPA.findAverageRatingByMovieId(movieId);
+
+        if (result == null || result[0] == null) {
+            return Optional.empty();
+        }
+
+        double average = ((Number) result[0]).doubleValue();
+        int count = ((Number) result[1]).intValue();
+
+        return Optional.of(new RatingSummary(average, count));
     }
 
     private UserEntity getUserEntity(UserId userId) {

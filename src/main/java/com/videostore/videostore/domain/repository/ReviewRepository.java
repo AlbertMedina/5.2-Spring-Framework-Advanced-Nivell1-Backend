@@ -1,5 +1,6 @@
 package com.videostore.videostore.domain.repository;
 
+import com.videostore.videostore.domain.common.RatingSummary;
 import com.videostore.videostore.domain.model.movie.valueobject.MovieId;
 import com.videostore.videostore.domain.model.review.Review;
 import com.videostore.videostore.domain.model.review.valueobject.ReviewId;
@@ -19,4 +20,6 @@ public interface ReviewRepository {
     Review addReview(Review review);
 
     void removeReview(ReviewId reviewId);
+
+    Optional<RatingSummary> getAverageRatingByMovieId(Long movieId);
 }

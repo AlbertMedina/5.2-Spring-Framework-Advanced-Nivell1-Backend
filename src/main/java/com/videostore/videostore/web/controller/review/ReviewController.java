@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
@@ -46,7 +47,10 @@ public class ReviewController {
 
     @Operation(summary = "Add a review by the authenticated user to a movie")
     @PostMapping("/reviews")
-    @CacheEvict(value = "reviewsByMovie", key = "#request.movieId")
+    @Caching(evict = {
+            @CacheEvict(value = "reviewsByMovie", key = "#request.movieId"),
+            @CacheEvict(value = "movieRating", key = "#movieId")
+    })
     public ResponseEntity<ReviewResponse> addReview(@RequestBody @Valid AddReviewRequest request, Authentication authentication) {
         log.info("User {} requested to add a review to movie {}", authentication.getName(), request.movieId());
 
@@ -61,7 +65,10 @@ public class ReviewController {
 
     @Operation(summary = "Remove a review by the authenticated user from a movie")
     @DeleteMapping("/reviews/{movieId}")
-    @CacheEvict(value = "reviewsByMovie", key = "#movieId")
+    @Caching(evict = {
+            @CacheEvict(value = "reviewsByMovie", key = "#request.movieId"),
+            @CacheEvict(value = "movieRating", key = "#movieId")
+    })
     public ResponseEntity<Void> removeReview(@PathVariable @Positive Long movieId, Authentication authentication) {
         log.info("User {} requested to remove their review from movie {}", authentication.getName(), movieId);
 

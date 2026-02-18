@@ -5,12 +5,14 @@ import com.videostore.videostore.application.command.movie.UpdateMovieInfoComman
 import com.videostore.videostore.application.port.in.movie.*;
 import com.videostore.videostore.application.command.movie.GetAllMoviesCommand;
 import com.videostore.videostore.domain.common.PagedResult;
+import com.videostore.videostore.domain.common.RatingSummary;
 import com.videostore.videostore.domain.model.movie.Movie;
 import com.videostore.videostore.domain.model.movie.MovieSortBy;
 import com.videostore.videostore.web.controller.movie.dto.request.AddMovieRequest;
 import com.videostore.videostore.web.controller.movie.dto.request.UpdateMovieInfoRequest;
 import com.videostore.videostore.web.controller.movie.dto.response.MovieResponse;
 import com.videostore.videostore.web.controller.movie.dto.response.PagedMovieResponse;
+import com.videostore.videostore.web.controller.movie.dto.response.RatingResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -44,6 +46,7 @@ public class MovieController {
     private final GetMovieUseCase getMovieUseCase;
     private final GetAllMoviesUseCase getAllMoviesUseCase;
     private final GetAllGenresUseCase getAllGenresUseCase;
+    private final GetMovieRatingUseCase getMovieRatingUseCase;
 
     public MovieController(
             AddMovieUseCase addMovieUseCase,
@@ -51,7 +54,8 @@ public class MovieController {
             RemoveMovieUseCase removeMovieUseCase,
             GetMovieUseCase getMovieUseCase,
             GetAllMoviesUseCase getAllMoviesUseCase,
-            GetAllGenresUseCase getAllGenresUseCase
+            GetAllGenresUseCase getAllGenresUseCase,
+            GetMovieRatingUseCase getMovieRatingUseCase
     ) {
         this.addMovieUseCase = addMovieUseCase;
         this.updateMovieInfoUseCase = updateMovieInfoUseCase;
@@ -59,6 +63,7 @@ public class MovieController {
         this.getMovieUseCase = getMovieUseCase;
         this.getAllMoviesUseCase = getAllMoviesUseCase;
         this.getAllGenresUseCase = getAllGenresUseCase;
+        this.getMovieRatingUseCase = getMovieRatingUseCase;
     }
 
     @Operation(summary = "Add a movie to the video store")
@@ -184,5 +189,19 @@ public class MovieController {
         log.info("Successfully retrieved {} genres", genres.size());
 
         return ResponseEntity.ok(genres);
+    }
+
+    @Operation(summary = "Get the average rating for a movie")
+    @GetMapping("/movies/{movieId}/rating")
+    @Cacheable(value = "movieRating", key = "#movieId")
+    public ResponseEntity<RatingResponse> getRating(@PathVariable @Positive Long movieId) {
+        log.info("Request received to get the average rating for movie {}", movieId);
+
+        RatingSummary ratingSUmmary = getMovieRatingUseCase.execute(movieId);
+
+        log.info("Successfully retrieved average rating reviews for movie {}", movieId);
+
+        RatingResponse response = new RatingResponse(ratingSUmmary.average(), ratingSUmmary.count());
+        return ResponseEntity.ok(response);
     }
 }
