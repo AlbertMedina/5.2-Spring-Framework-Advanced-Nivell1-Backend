@@ -166,7 +166,7 @@ public class MovieController {
         GetAllMoviesCommand getAllMoviesCommand = new GetAllMoviesCommand(page, size, genre, onlyAvailable, title, sortBy, ascending);
         PagedResult<Movie> result = getAllMoviesUseCase.execute(getAllMoviesCommand);
 
-        log.info("Successfully retrieved {} movies", result.getSize());
+        log.info("Successfully retrieved {} movies", result.getTotalElements());
 
         PagedMovieResponse response = PagedMovieResponse.from(result);
 

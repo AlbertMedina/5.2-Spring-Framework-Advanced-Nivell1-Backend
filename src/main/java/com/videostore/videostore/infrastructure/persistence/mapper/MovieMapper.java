@@ -24,6 +24,10 @@ public final class MovieMapper {
             entity.setPosterUrl(movie.getPosterUrl().value());
         }
 
+        if (movie.getId() != null) {
+            entity.setId(movie.getId().value());
+        }
+
         return entity;
     }
 
