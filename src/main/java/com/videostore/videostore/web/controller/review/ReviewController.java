@@ -49,7 +49,8 @@ public class ReviewController {
     @PostMapping("/reviews")
     @Caching(evict = {
             @CacheEvict(value = "reviewsByMovie", key = "#request.movieId"),
-            @CacheEvict(value = "movieRating", key = "#request.movieId")
+            @CacheEvict(value = "movieRating", key = "#request.movieId"),
+            @CacheEvict(value = "movies", key = "#request.movieId")
     })
     public ResponseEntity<ReviewResponse> addReview(@RequestBody @Valid AddReviewRequest request, Authentication authentication) {
         log.info("User {} requested to add a review to movie {}", authentication.getName(), request.movieId());
@@ -67,7 +68,8 @@ public class ReviewController {
     @DeleteMapping("/reviews/{movieId}")
     @Caching(evict = {
             @CacheEvict(value = "reviewsByMovie", key = "#movieId"),
-            @CacheEvict(value = "movieRating", key = "#movieId")
+            @CacheEvict(value = "movieRating", key = "#movieId"),
+            @CacheEvict(value = "movies", key = "#movieId")
     })
     public ResponseEntity<Void> removeReview(@PathVariable @Positive Long movieId, Authentication authentication) {
         log.info("User {} requested to remove their review from movie {}", authentication.getName(), movieId);
