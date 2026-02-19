@@ -7,6 +7,7 @@ import com.videostore.videostore.domain.model.review.valueobject.ReviewId;
 import com.videostore.videostore.domain.model.user.valueobject.UserId;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface ReviewRepository {
@@ -21,5 +22,7 @@ public interface ReviewRepository {
 
     void removeReview(ReviewId reviewId);
 
-    Optional<RatingSummary> getAverageRatingByMovieId(Long movieId);
+    Optional<RatingSummary> getAverageRatingByMovieId(MovieId movieId);
+
+    Map<Long, RatingSummary> getAverageRatingsByMovieIds(List<MovieId> movieIds);
 }

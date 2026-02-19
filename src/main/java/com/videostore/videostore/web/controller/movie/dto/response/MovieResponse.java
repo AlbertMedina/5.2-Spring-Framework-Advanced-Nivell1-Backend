@@ -1,5 +1,7 @@
 package com.videostore.videostore.web.controller.movie.dto.response;
 
+import com.videostore.videostore.application.model.MovieDetails;
+import com.videostore.videostore.domain.common.RatingSummary;
 import com.videostore.videostore.domain.model.movie.Movie;
 
 public record MovieResponse(
@@ -11,9 +13,14 @@ public record MovieResponse(
         String director,
         String synopsis,
         int numberOfCopies,
-        String posterUrl
+        String posterUrl,
+        RatingResponse rating
 ) {
-    public static MovieResponse fromDomain(Movie movie) {
+
+    public static MovieResponse from(MovieDetails movieDetails) {
+        Movie movie = movieDetails.movie();
+        RatingSummary rating = movieDetails.rating();
+
         return new MovieResponse(
                 movie.getId().value(),
                 movie.getTitle().value(),
@@ -23,7 +30,8 @@ public record MovieResponse(
                 movie.getDirector().value(),
                 movie.getSynopsis().value(),
                 movie.getNumberOfCopies().value(),
-                movie.getPosterUrl() != null ? movie.getPosterUrl().value() : null
+                movie.getPosterUrl() != null ? movie.getPosterUrl().value() : null,
+                rating != null ? RatingResponse.from(rating) : null
         );
     }
 }

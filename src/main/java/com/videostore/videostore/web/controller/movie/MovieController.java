@@ -2,11 +2,11 @@ package com.videostore.videostore.web.controller.movie;
 
 import com.videostore.videostore.application.command.movie.AddMovieCommand;
 import com.videostore.videostore.application.command.movie.UpdateMovieInfoCommand;
+import com.videostore.videostore.application.model.MovieDetails;
 import com.videostore.videostore.application.port.in.movie.*;
 import com.videostore.videostore.application.command.movie.GetAllMoviesCommand;
 import com.videostore.videostore.domain.common.PagedResult;
 import com.videostore.videostore.domain.common.RatingSummary;
-import com.videostore.videostore.domain.model.movie.Movie;
 import com.videostore.videostore.domain.model.movie.MovieSortBy;
 import com.videostore.videostore.web.controller.movie.dto.request.AddMovieRequest;
 import com.videostore.videostore.web.controller.movie.dto.request.UpdateMovieInfoRequest;
@@ -90,11 +90,11 @@ public class MovieController {
                 hasPoster ? poster.getOriginalFilename() : null
         );
 
-        Movie movie = addMovieUseCase.execute(command);
+        MovieDetails movie = addMovieUseCase.execute(command);
 
-        log.info("Movie '{}' successfully added with id {}", movie.getTitle(), movie.getId().value());
+        log.info("Movie '{}' successfully added with id {}", movie.movie().getTitle(), movie.movie().getId().value());
 
-        MovieResponse response = MovieResponse.fromDomain(movie);
+        MovieResponse response = MovieResponse.from(movie);
         return ResponseEntity.status(201).body(response);
     }
 
@@ -116,11 +116,11 @@ public class MovieController {
                 request.director(),
                 request.synopsis()
         );
-        Movie movie = updateMovieInfoUseCase.execute(movieId, command);
+        MovieDetails movie = updateMovieInfoUseCase.execute(movieId, command);
 
         log.info("Movie id {} successfully updated", movieId);
 
-        MovieResponse response = MovieResponse.fromDomain(movie);
+        MovieResponse response = MovieResponse.from(movie);
         return ResponseEntity.ok(response);
     }
 
@@ -147,11 +147,11 @@ public class MovieController {
     public ResponseEntity<MovieResponse> getMovie(@PathVariable @Positive Long movieId) {
         log.info("Request received to get movie id {}", movieId);
 
-        Movie movie = getMovieUseCase.execute(movieId);
+        MovieDetails movie = getMovieUseCase.execute(movieId);
 
         log.info("Successfully retrieved movie id {}", movieId);
 
-        MovieResponse response = MovieResponse.fromDomain(movie);
+        MovieResponse response = MovieResponse.from(movie);
         return ResponseEntity.ok(response);
     }
 
@@ -169,7 +169,7 @@ public class MovieController {
                 page, size, genre, onlyAvailable, title, sortBy, ascending);
 
         GetAllMoviesCommand getAllMoviesCommand = new GetAllMoviesCommand(page, size, genre, onlyAvailable, title, sortBy, ascending);
-        PagedResult<Movie> result = getAllMoviesUseCase.execute(getAllMoviesCommand);
+        PagedResult<MovieDetails> result = getAllMoviesUseCase.execute(getAllMoviesCommand);
 
         log.info("Successfully retrieved {} movies", result.getTotalElements());
 
@@ -197,11 +197,11 @@ public class MovieController {
     public ResponseEntity<RatingResponse> getRating(@PathVariable @Positive Long movieId) {
         log.info("Request received to get the average rating for movie {}", movieId);
 
-        RatingSummary ratingSUmmary = getMovieRatingUseCase.execute(movieId);
+        RatingSummary ratingSummary = getMovieRatingUseCase.execute(movieId);
 
-        log.info("Successfully retrieved a rating of {} from {} reviews for movie {}", ratingSUmmary.average(), ratingSUmmary.count(), movieId);
+        log.info("Successfully retrieved a rating of {} from {} reviews for movie {}", ratingSummary.average(), ratingSummary.count(), movieId);
 
-        RatingResponse response = new RatingResponse(ratingSUmmary.average(), ratingSUmmary.count());
+        RatingResponse response = new RatingResponse(ratingSummary.average(), ratingSummary.count());
         return ResponseEntity.ok(response);
     }
 }

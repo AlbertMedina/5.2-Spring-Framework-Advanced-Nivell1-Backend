@@ -1,8 +1,10 @@
 package com.videostore.videostore.application.usecase.movie;
 
 import com.videostore.videostore.application.command.movie.AddMovieCommand;
+import com.videostore.videostore.application.model.MovieDetails;
 import com.videostore.videostore.application.port.in.movie.AddMovieUseCase;
 import com.videostore.videostore.application.port.out.ImageStoragePort;
+import com.videostore.videostore.domain.common.RatingSummary;
 import com.videostore.videostore.domain.model.movie.Movie;
 import com.videostore.videostore.domain.model.movie.valueobject.*;
 import com.videostore.videostore.domain.repository.MovieRepository;
@@ -22,7 +24,7 @@ public class AddMovieUseCaseImpl implements AddMovieUseCase {
 
     @Override
     @Transactional
-    public Movie execute(AddMovieCommand command) {
+    public MovieDetails execute(AddMovieCommand command) {
         Movie movie = Movie.create(
                 null,
                 new Title(command.title()),
@@ -42,6 +44,8 @@ public class AddMovieUseCaseImpl implements AddMovieUseCase {
             movie.setPosterUrl(new PosterUrl(posterUrl));
         }
 
-        return movieRepository.addMovie(movie);
+        Movie newMovie = movieRepository.addMovie(movie);
+
+        return new MovieDetails(newMovie, new RatingSummary(0, 0));
     }
 }

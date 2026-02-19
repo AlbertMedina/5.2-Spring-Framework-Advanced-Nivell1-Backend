@@ -1,7 +1,7 @@
 package com.videostore.videostore.application.port.in.movie;
 
-import com.videostore.videostore.domain.model.movie.Movie;
+import com.videostore.videostore.application.model.MovieDetails;
 
 public interface GetMovieUseCase {
-    Movie execute(Long id);
+    MovieDetails execute(Long id);
 }

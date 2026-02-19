@@ -2,6 +2,7 @@ package com.videostore.videostore.application.usecase.movie;
 
 import com.videostore.videostore.application.port.in.movie.GetMovieRatingUseCase;
 import com.videostore.videostore.domain.common.RatingSummary;
+import com.videostore.videostore.domain.model.movie.valueobject.MovieId;
 import com.videostore.videostore.domain.repository.ReviewRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,7 +19,7 @@ public class GetMovieRatingUseCaseImpl implements GetMovieRatingUseCase {
     @Override
     @Transactional
     public RatingSummary execute(Long movieId) {
-        return reviewRepository.getAverageRatingByMovieId(movieId)
+        return reviewRepository.getAverageRatingByMovieId(new MovieId(movieId))
                 .orElse(new RatingSummary(0.0, 0));
     }
 }

@@ -17,7 +17,9 @@ import com.videostore.videostore.infrastructure.persistence.repository.ReviewRep
 import com.videostore.videostore.infrastructure.persistence.repository.UserRepositoryJPA;
 import org.springframework.stereotype.Repository;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Repository
@@ -66,8 +68,8 @@ public class ReviewRepositoryImpl implements ReviewRepository {
     }
 
     @Override
-    public Optional<RatingSummary> getAverageRatingByMovieId(Long movieId) {
-        Object result = reviewRepositoryJPA.findAverageRatingByMovieId(movieId);
+    public Optional<RatingSummary> getAverageRatingByMovieId(MovieId movieId) {
+        Object result = reviewRepositoryJPA.findAverageRatingByMovieId(movieId.value());
 
         if (result instanceof Object[] resultArr && resultArr.length == 2) {
             Number avg = (Number) resultArr[0];
@@ -80,6 +82,29 @@ public class ReviewRepositoryImpl implements ReviewRepository {
         } else {
             return Optional.empty();
         }
+    }
+
+    @Override
+    public Map<Long, RatingSummary> getAverageRatingsByMovieIds(List<MovieId> movieIds) {
+        Object[] results = reviewRepositoryJPA.findAverageRatingsByMovieIds(movieIds.stream().map(MovieId::value).toList());
+
+        Map<Long, RatingSummary> ratingsMap = new HashMap<>();
+
+        for (Object res : results) {
+            if (res instanceof Object[] arr && arr.length == 3) {
+                Number avg = (Number) arr[0];
+                Number cnt = (Number) arr[1];
+                Number movieIdNum = (Number) arr[2];
+
+                double average = (avg != null) ? avg.doubleValue() : 0.0;
+                int count = (cnt != null) ? cnt.intValue() : 0;
+                long movieId = (movieIdNum != null) ? movieIdNum.longValue() : 0L;
+
+                ratingsMap.put(movieId, new RatingSummary(average, count));
+            }
+        }
+
+        return ratingsMap;
     }
 
     private UserEntity getUserEntity(UserId userId) {

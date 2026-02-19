@@ -1,7 +1,7 @@
 package com.videostore.videostore.web.controller.movie.dto.response;
 
+import com.videostore.videostore.application.model.MovieDetails;
 import com.videostore.videostore.domain.common.PagedResult;
-import com.videostore.videostore.domain.model.movie.Movie;
 
 import java.util.List;
 
@@ -14,10 +14,10 @@ public record PagedMovieResponse(
         boolean hasNext,
         boolean hasPrevious
 ) {
-    public static PagedMovieResponse from(PagedResult<Movie> result) {
+    public static PagedMovieResponse from(PagedResult<MovieDetails> result) {
         return new PagedMovieResponse(
                 result.getContent().stream()
-                        .map(MovieResponse::fromDomain)
+                        .map(MovieResponse::from)
                         .toList(),
                 result.getPage(),
                 result.getSize(),

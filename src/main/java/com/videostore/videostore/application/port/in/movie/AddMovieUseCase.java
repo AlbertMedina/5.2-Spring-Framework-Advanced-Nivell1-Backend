@@ -1,8 +1,8 @@
 package com.videostore.videostore.application.port.in.movie;
 
 import com.videostore.videostore.application.command.movie.AddMovieCommand;
-import com.videostore.videostore.domain.model.movie.Movie;
+import com.videostore.videostore.application.model.MovieDetails;
 
 public interface AddMovieUseCase {
-    Movie execute(AddMovieCommand command);
+    MovieDetails execute(AddMovieCommand command);
 }
