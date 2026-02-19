@@ -67,16 +67,19 @@ public class ReviewRepositoryImpl implements ReviewRepository {
 
     @Override
     public Optional<RatingSummary> getAverageRatingByMovieId(Long movieId) {
-        Object[] result = reviewRepositoryJPA.findAverageRatingByMovieId(movieId);
+        Object result = reviewRepositoryJPA.findAverageRatingByMovieId(movieId);
 
-        if (result == null || result.length < 2 || result[0] == null) {
+        if (result instanceof Object[] resultArr && resultArr.length == 2) {
+            Number avg = (Number) resultArr[0];
+            Number cnt = (Number) resultArr[1];
+
+            double average = (avg != null) ? avg.doubleValue() : 0.0;
+            int count = (cnt != null) ? cnt.intValue() : 0;
+
+            return Optional.of(new RatingSummary(average, count));
+        } else {
             return Optional.empty();
         }
-
-        double average = ((Number) result[0]).doubleValue();
-        int count = ((Number) result[1]).intValue();
-
-        return Optional.of(new RatingSummary(average, count));
     }
 
     private UserEntity getUserEntity(UserId userId) {
