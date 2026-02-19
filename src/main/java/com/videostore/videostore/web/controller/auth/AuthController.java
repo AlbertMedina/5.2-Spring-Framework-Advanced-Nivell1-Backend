@@ -75,6 +75,6 @@ public class AuthController {
         log.info("User with id {} and username {} successfully logged in", user.getId().value(), user.getUsername().value());
 
         String token = jwtService.generateToken(user.getUsername().value());
-        return ResponseEntity.ok(new LoginResponse(token, user.getRole()));
+        return ResponseEntity.ok(new LoginResponse(token, user.getRole(), user.getId().value()));
     }
 }

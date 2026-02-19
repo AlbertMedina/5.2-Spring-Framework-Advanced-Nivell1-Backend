@@ -6,7 +6,6 @@ import com.videostore.videostore.application.model.ReviewDetails;
 import com.videostore.videostore.application.port.in.review.AddReviewUseCase;
 import com.videostore.videostore.application.port.in.review.GetReviewsByMovieUseCase;
 import com.videostore.videostore.application.port.in.review.RemoveReviewUseCase;
-import com.videostore.videostore.domain.model.review.Review;
 import com.videostore.videostore.web.controller.review.dto.request.AddReviewRequest;
 import com.videostore.videostore.web.controller.review.dto.response.ReviewResponse;
 import io.swagger.v3.oas.annotations.Operation;

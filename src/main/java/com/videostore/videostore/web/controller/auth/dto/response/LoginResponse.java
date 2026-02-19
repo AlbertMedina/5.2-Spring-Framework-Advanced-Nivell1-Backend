@@ -4,6 +4,7 @@ import com.videostore.videostore.domain.model.user.Role;
 
 public record LoginResponse(
         String token,
-        Role role
+        Role role,
+        Long userId
 ) {
 }
