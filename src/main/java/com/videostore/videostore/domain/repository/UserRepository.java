@@ -15,6 +15,8 @@ public interface UserRepository {
 
     List<User> findAllUsers();
 
+    List<User> findAllByIds(List<UserId> userIds);
+
     boolean existsById(UserId id);
 
     Optional<User> findByUsername(Username username);

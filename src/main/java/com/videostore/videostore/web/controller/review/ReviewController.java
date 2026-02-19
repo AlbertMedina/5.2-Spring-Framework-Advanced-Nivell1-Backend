@@ -2,6 +2,7 @@ package com.videostore.videostore.web.controller.review;
 
 import com.videostore.videostore.application.command.review.AddReviewCommand;
 import com.videostore.videostore.application.command.review.RemoveReviewCommand;
+import com.videostore.videostore.application.model.ReviewDetails;
 import com.videostore.videostore.application.port.in.review.AddReviewUseCase;
 import com.videostore.videostore.application.port.in.review.GetReviewsByMovieUseCase;
 import com.videostore.videostore.application.port.in.review.RemoveReviewUseCase;
@@ -55,11 +56,11 @@ public class ReviewController {
         log.info("User {} requested to add a review to movie {}", authentication.getName(), request.movieId());
 
         AddReviewCommand command = new AddReviewCommand(authentication.getName(), request.movieId(), request.rating(), request.comment());
-        Review review = addReviewUseCase.execute(command);
+        ReviewDetails reviewDetails = addReviewUseCase.execute(command);
 
         log.info("User {} successfully added review to movie {}", authentication.getName(), request.movieId());
 
-        ReviewResponse response = ReviewResponse.fromDomain(review);
+        ReviewResponse response = ReviewResponse.from(reviewDetails);
         return ResponseEntity.status(201).body(response);
     }
 
@@ -86,11 +87,11 @@ public class ReviewController {
     public ResponseEntity<List<ReviewResponse>> getReviewsByMovie(@PathVariable @Positive Long movieId) {
         log.info("Request received to get all reviews for movie {}", movieId);
 
-        List<ReviewResponse> response = getReviewsByMovieUseCase.execute(movieId)
-                .stream().map(ReviewResponse::fromDomain).toList();
+        List<ReviewDetails> reviews = getReviewsByMovieUseCase.execute(movieId);
 
-        log.info("Successfully retrieved {} reviews for movie {}", response.size(), movieId);
+        log.info("Successfully retrieved {} reviews for movie {}", reviews.size(), movieId);
 
+        List<ReviewResponse> response = reviews.stream().map(ReviewResponse::from).toList();
         return ResponseEntity.ok(response);
     }
 }

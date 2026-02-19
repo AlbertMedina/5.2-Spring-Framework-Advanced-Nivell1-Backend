@@ -37,6 +37,23 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
+    public List<User> findAllByIds(List<UserId> userIds) {
+        if (userIds == null || userIds.isEmpty()) {
+            return List.of();
+        }
+
+        List<Long> ids = userIds.stream()
+                .map(UserId::value)
+                .toList();
+
+        List<UserEntity> userEntities = userRepositoryJPA.findAllById(ids);
+        
+        return userEntities.stream()
+                .map(UserMapper::toDomain)
+                .toList();
+    }
+
+    @Override
     public boolean existsById(UserId id) {
         return userRepositoryJPA.existsById(id.value());
     }

@@ -1,6 +1,6 @@
 package com.videostore.videostore.web.controller.review.dto.response;
 
-import com.videostore.videostore.domain.model.review.Review;
+import com.videostore.videostore.application.model.ReviewDetails;
 
 public record ReviewResponse(
         Long id,
@@ -8,16 +8,18 @@ public record ReviewResponse(
         Long movieId,
         int rating,
         String comment,
-        String reviewDate
+        String reviewDate,
+        String username
 ) {
-    public static ReviewResponse fromDomain(Review review) {
+    public static ReviewResponse from(ReviewDetails reviewDetails) {
         return new ReviewResponse(
-                review.getId().value(),
-                review.getUserId().value(),
-                review.getMovieId().value(),
-                review.getRating().value(),
-                review.getComment().value(),
-                review.getReviewDate().toString()
+                reviewDetails.review().getId().value(),
+                reviewDetails.review().getUserId().value(),
+                reviewDetails.review().getMovieId().value(),
+                reviewDetails.review().getRating().value(),
+                reviewDetails.review().getComment().value(),
+                reviewDetails.review().getReviewDate().toString(),
+                reviewDetails.username()
         );
     }
 }

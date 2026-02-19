@@ -1,6 +1,7 @@
 package com.videostore.videostore.application.usecase.review;
 
 import com.videostore.videostore.application.command.review.AddReviewCommand;
+import com.videostore.videostore.application.model.ReviewDetails;
 import com.videostore.videostore.application.port.in.review.AddReviewUseCase;
 import com.videostore.videostore.domain.exception.conflict.MovieAlreadyReviewedException;
 import com.videostore.videostore.domain.exception.conflict.MovieNotRentedException;
@@ -41,7 +42,7 @@ public class AddReviewUseCaseImpl implements AddReviewUseCase {
 
     @Override
     @Transactional
-    public Review execute(AddReviewCommand command) {
+    public ReviewDetails execute(AddReviewCommand command) {
         Username username = new Username(command.username());
         MovieId movieId = new MovieId(command.movieId());
 
@@ -62,7 +63,9 @@ public class AddReviewUseCaseImpl implements AddReviewUseCase {
                 new ReviewDate(LocalDate.now())
         );
 
-        return reviewRepository.addReview(review);
+        Review newReview = reviewRepository.addReview(review);
+
+        return new ReviewDetails(review, username.value());
     }
 
     private void validateReview(UserId userId, MovieId movieId) {
