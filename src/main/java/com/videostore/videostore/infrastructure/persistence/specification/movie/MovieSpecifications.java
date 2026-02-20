@@ -4,10 +4,7 @@ import com.videostore.videostore.domain.model.movie.MovieSortBy;
 import com.videostore.videostore.infrastructure.persistence.entity.MovieEntity;
 import com.videostore.videostore.infrastructure.persistence.entity.RentalEntity;
 import com.videostore.videostore.infrastructure.persistence.entity.ReviewEntity;
-import jakarta.persistence.criteria.Expression;
-import jakarta.persistence.criteria.Order;
-import jakarta.persistence.criteria.Root;
-import jakarta.persistence.criteria.Subquery;
+import jakarta.persistence.criteria.*;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.Objects;
@@ -79,29 +76,24 @@ public class MovieSpecifications {
 
             Subquery<Double> avgSubquery = query.subquery(Double.class);
             Root<ReviewEntity> reviewRootAvg = avgSubquery.from(ReviewEntity.class);
-
-            Expression<Double> avgExpr = cb.avg(reviewRootAvg.get("rating"));
-
-            avgSubquery
-                    .select(avgExpr)
+            avgSubquery.select(cb.avg(reviewRootAvg.get("rating")))
                     .where(cb.equal(reviewRootAvg.get("movie"), root));
 
             Subquery<Long> countSubquery = query.subquery(Long.class);
             Root<ReviewEntity> reviewRootCount = countSubquery.from(ReviewEntity.class);
-
-            Expression<Long> countExpr = cb.count(reviewRootCount);
-
-            countSubquery
-                    .select(countExpr)
+            countSubquery.select(cb.count(reviewRootCount))
                     .where(cb.equal(reviewRootCount.get("movie"), root));
 
-            Order hasRatingsFirst = cb.desc(countSubquery);
+            Expression<Object> hasReviews = cb.selectCase()
+                    .when(cb.greaterThan(countSubquery, 0L), 1)
+                    .otherwise(0);
 
-            Order ratingOrder = ascending
-                    ? cb.asc(avgSubquery)
-                    : cb.desc(avgSubquery);
+            Order hasReviewsFirst = cb.desc(hasReviews);
 
-            query.orderBy(hasRatingsFirst, ratingOrder);
+            Expression<Double> avgWithDefault = cb.coalesce(avgSubquery, 0.0);
+            Order ratingOrder = ascending ? cb.asc(avgWithDefault) : cb.desc(avgWithDefault);
+            
+            query.orderBy(hasReviewsFirst, ratingOrder);
 
             return cb.conjunction();
         };
