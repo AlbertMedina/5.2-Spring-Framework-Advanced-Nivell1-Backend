@@ -93,7 +93,7 @@ public class FavouriteController {
     }
 
     @Operation(summary = "Check if a movie is marked as favourite by the authenticated user")
-    @GetMapping("/favourites/movies/{movieId}")
+    @GetMapping("/me/favourites/{movieId}")
     public ResponseEntity<UserHasFavouriteMovieResponse> userHasFavouriteMovie(@PathVariable @Positive Long movieId, Authentication authentication) {
         log.info("User {} requested if has favourite movie id {}", authentication.getName(), movieId);
 

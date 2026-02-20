@@ -136,7 +136,7 @@ public class RentalController {
     }
 
     @Operation(summary = "Check if a movie is rented by the authenticated user")
-    @GetMapping("/rentals/movies/{movieId}")
+    @GetMapping("/me/rentals/{movieId}")
     public ResponseEntity<UserHasRentedMovieResponse> userHasRentedMovie(@PathVariable @Positive Long movieId, Authentication authentication) {
         log.info("User {} requested if has rented movie id {}", authentication.getName(), movieId);
 
