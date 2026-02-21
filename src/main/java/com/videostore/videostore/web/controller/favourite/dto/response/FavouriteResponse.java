@@ -1,19 +1,18 @@
 package com.videostore.videostore.web.controller.favourite.dto.response;
 
-import com.videostore.videostore.domain.model.favourite.Favourite;
+import com.videostore.videostore.application.model.FavouriteDetails;
+import com.videostore.videostore.web.controller.movie.dto.response.MovieResponse;
 
 public record FavouriteResponse(
         Long id,
-        Long userId,
-        Long movieId,
+        MovieResponse movie,
         String favouriteDate
 ) {
-    public static FavouriteResponse fromDomain(Favourite favourite) {
+    public static FavouriteResponse from(FavouriteDetails favouriteDetails) {
         return new FavouriteResponse(
-                favourite.getId().value(),
-                favourite.getUserId().value(),
-                favourite.getMovieId().value(),
-                favourite.getFavouriteDate().value().toString()
+                favouriteDetails.id(),
+                MovieResponse.from(favouriteDetails.movieDetails()),
+                favouriteDetails.favouriteDate().toString()
         );
     }
 }

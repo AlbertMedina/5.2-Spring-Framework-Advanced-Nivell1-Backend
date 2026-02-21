@@ -2,6 +2,7 @@ package com.videostore.videostore.web.controller.favourite;
 
 import com.videostore.videostore.application.command.favourite.AddFavouriteCommand;
 import com.videostore.videostore.application.command.favourite.RemoveFavouriteCommand;
+import com.videostore.videostore.application.model.FavouriteDetails;
 import com.videostore.videostore.application.port.in.favourite.AddFavouriteUseCase;
 import com.videostore.videostore.application.port.in.favourite.GetMyFavouritesUseCase;
 import com.videostore.videostore.application.port.in.favourite.RemoveFavouriteUseCase;
@@ -56,11 +57,11 @@ public class FavouriteController {
         log.info("User {} requested to add movie {} to favourites", authentication.getName(), request.movieId());
 
         AddFavouriteCommand command = new AddFavouriteCommand(authentication.getName(), request.movieId());
-        Favourite favourite = addFavouriteUseCase.execute(command);
+        FavouriteDetails favouritedetails = addFavouriteUseCase.execute(command);
 
         log.info("User {} successfully added movie {} to favourites", authentication.getName(), request.movieId());
 
-        FavouriteResponse response = FavouriteResponse.fromDomain(favourite);
+        FavouriteResponse response = FavouriteResponse.from(favouritedetails);
         return ResponseEntity.status(201).body(response);
     }
 
@@ -84,11 +85,12 @@ public class FavouriteController {
     public ResponseEntity<List<FavouriteResponse>> getMyFavourites(Authentication authentication) {
         log.info("User {} requested all their favourite movies", authentication.getName());
 
-        List<FavouriteResponse> response = getMyFavouritesUseCase.execute(authentication.getName())
-                .stream().map(FavouriteResponse::fromDomain).toList();
+        List<FavouriteDetails> favourites = getMyFavouritesUseCase.execute(authentication.getName());
 
-        log.info("User {} successfully retrieved {} favourite movies", authentication.getName(), response.size());
 
+        log.info("User {} successfully retrieved {} favourite movies", authentication.getName(), favourites.size());
+
+        List<FavouriteResponse> response = favourites.stream().map(FavouriteResponse::from).toList();
         return ResponseEntity.ok(response);
     }
 

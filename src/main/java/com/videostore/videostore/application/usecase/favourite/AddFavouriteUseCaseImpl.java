@@ -1,7 +1,10 @@
 package com.videostore.videostore.application.usecase.favourite;
 
 import com.videostore.videostore.application.command.favourite.AddFavouriteCommand;
+import com.videostore.videostore.application.model.FavouriteDetails;
+import com.videostore.videostore.application.model.MovieDetails;
 import com.videostore.videostore.application.port.in.favourite.AddFavouriteUseCase;
+import com.videostore.videostore.domain.common.RatingSummary;
 import com.videostore.videostore.domain.exception.conflict.FavouriteAlreadyExistsException;
 import com.videostore.videostore.domain.exception.notfound.MovieNotFoundException;
 import com.videostore.videostore.domain.exception.notfound.UserNotFoundException;
@@ -14,6 +17,7 @@ import com.videostore.videostore.domain.model.user.valueobject.UserId;
 import com.videostore.videostore.domain.model.user.valueobject.Username;
 import com.videostore.videostore.domain.repository.FavouriteRepository;
 import com.videostore.videostore.domain.repository.MovieRepository;
+import com.videostore.videostore.domain.repository.ReviewRepository;
 import com.videostore.videostore.domain.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,16 +30,22 @@ public class AddFavouriteUseCaseImpl implements AddFavouriteUseCase {
     private final FavouriteRepository favouriteRepository;
     private final UserRepository userRepository;
     private final MovieRepository movieRepository;
+    private final ReviewRepository reviewRepository;
 
-    public AddFavouriteUseCaseImpl(FavouriteRepository favouriteRepository, MovieRepository movieRepository, UserRepository userRepository) {
+    public AddFavouriteUseCaseImpl(FavouriteRepository favouriteRepository,
+                                   MovieRepository movieRepository,
+                                   UserRepository userRepository,
+                                   ReviewRepository reviewRepository
+    ) {
         this.favouriteRepository = favouriteRepository;
         this.userRepository = userRepository;
         this.movieRepository = movieRepository;
+        this.reviewRepository = reviewRepository;
     }
 
     @Override
     @Transactional
-    public Favourite execute(AddFavouriteCommand addFavouriteCommand) {
+    public FavouriteDetails execute(AddFavouriteCommand addFavouriteCommand) {
         Username username = new Username(addFavouriteCommand.username());
         MovieId movieId = new MovieId(addFavouriteCommand.movieId());
 
@@ -54,7 +64,18 @@ public class AddFavouriteUseCaseImpl implements AddFavouriteUseCase {
                 new FavouriteDate(LocalDate.now())
         );
 
-        return favouriteRepository.addFavourite(favourite);
+        Favourite newFavourite = favouriteRepository.addFavourite(favourite);
+
+        RatingSummary ratingSummary = reviewRepository.getAverageRatingByMovieId(movieId).orElse(new RatingSummary(0.0, 0));
+
+        return new FavouriteDetails(
+                newFavourite.getId().value(),
+                newFavourite.getFavouriteDate().value(),
+                new MovieDetails(
+                        movie,
+                        ratingSummary
+                )
+        );
     }
 
     private void validateFavourite(UserId userId, MovieId movieId) {
