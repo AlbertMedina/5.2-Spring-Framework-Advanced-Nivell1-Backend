@@ -6,8 +6,10 @@ import com.videostore.videostore.application.model.ReviewDetails;
 import com.videostore.videostore.application.port.in.review.AddReviewUseCase;
 import com.videostore.videostore.application.port.in.review.GetReviewsByMovieUseCase;
 import com.videostore.videostore.application.port.in.review.RemoveReviewUseCase;
+import com.videostore.videostore.application.port.in.review.UserHasReviewedMovieUseCase;
 import com.videostore.videostore.web.controller.review.dto.request.AddReviewRequest;
 import com.videostore.videostore.web.controller.review.dto.response.ReviewResponse;
+import com.videostore.videostore.web.controller.review.dto.response.UserHasReviewedMovieResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -34,15 +36,18 @@ public class ReviewController {
     private final AddReviewUseCase addReviewUseCase;
     private final RemoveReviewUseCase removeReviewUseCase;
     private final GetReviewsByMovieUseCase getReviewsByMovieUseCase;
+    private final UserHasReviewedMovieUseCase userHasReviewedMovieUseCase;
 
     public ReviewController(
             AddReviewUseCase addReviewUseCase,
             RemoveReviewUseCase removeReviewUseCase,
-            GetReviewsByMovieUseCase getReviewsByMovieUseCase
+            GetReviewsByMovieUseCase getReviewsByMovieUseCase,
+            UserHasReviewedMovieUseCase userHasReviewedMovieUseCase
     ) {
         this.addReviewUseCase = addReviewUseCase;
         this.removeReviewUseCase = removeReviewUseCase;
         this.getReviewsByMovieUseCase = getReviewsByMovieUseCase;
+        this.userHasReviewedMovieUseCase = userHasReviewedMovieUseCase;
     }
 
     @Operation(summary = "Add a review by the authenticated user to a movie")
@@ -93,6 +98,19 @@ public class ReviewController {
         log.info("Successfully retrieved {} reviews for movie {}", reviews.size(), movieId);
 
         List<ReviewResponse> response = reviews.stream().map(ReviewResponse::from).toList();
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "Check if a movie has already been reviewed by the authenticated user")
+    @GetMapping("/me/reviews/{movieId}")
+    public ResponseEntity<UserHasReviewedMovieResponse> userHasReviewedMovie(@PathVariable @Positive Long movieId, Authentication authentication) {
+        log.info("User {} requested if has rented movie id {}", authentication.getName(), movieId);
+
+        boolean reviewed = userHasReviewedMovieUseCase.execute(authentication.getName(), movieId);
+
+        log.info("Successfully checked request with result {}", reviewed);
+
+        UserHasReviewedMovieResponse response = new UserHasReviewedMovieResponse(reviewed);
         return ResponseEntity.ok(response);
     }
 }
