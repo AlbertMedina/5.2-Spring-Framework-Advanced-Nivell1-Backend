@@ -1,6 +1,6 @@
 package com.videostore.videostore.application.usecase.review;
 
-import com.videostore.videostore.application.port.in.rental.UserHasRentedMovieUseCase;
+import com.videostore.videostore.application.port.in.review.UserHasReviewedMovieUseCase;
 import com.videostore.videostore.domain.exception.notfound.UserNotFoundException;
 import com.videostore.videostore.domain.model.movie.valueobject.MovieId;
 import com.videostore.videostore.domain.model.user.User;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class UserHasReviewedMovieUseCaseImpl implements UserHasRentedMovieUseCase {
+public class UserHasReviewedMovieUseCaseImpl implements UserHasReviewedMovieUseCase {
 
     private final ReviewRepository reviewRepository;
     private final UserRepository userRepository;
