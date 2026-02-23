@@ -34,153 +34,87 @@ public class GlobalExceptionHandler {
                 .findFirst()
                 .orElse("Validation error");
 
-        ErrorResponse error = new ErrorResponse(
-                HttpStatus.BAD_REQUEST.value(),
-                HttpStatus.BAD_REQUEST.getReasonPhrase(),
-                message,
-                LocalDateTime.now()
-        );
-
-        return ResponseEntity.badRequest().body(error);
+        return buildError(HttpStatus.BAD_REQUEST, message);
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ErrorResponse> handleTypeMismatch(MethodArgumentTypeMismatchException e) {
         log.error("Type mismatch error: {}", e.getMessage(), e);
 
-        ErrorResponse error = new ErrorResponse(
-                HttpStatus.BAD_REQUEST.value(),
-                HttpStatus.BAD_REQUEST.getReasonPhrase(),
-                e.getMessage(),
-                LocalDateTime.now()
-        );
-
-        return ResponseEntity.badRequest().body(error);
+        return buildError(HttpStatus.BAD_REQUEST, e.getMessage());
     }
 
     @ExceptionHandler(InvalidDataAccessApiUsageException.class)
     public ResponseEntity<ErrorResponse> handleInvalidDataAccess(InvalidDataAccessApiUsageException e) {
         log.error("Invalid data access: {}", e.getMessage(), e);
 
-        ErrorResponse error = new ErrorResponse(
-                HttpStatus.BAD_REQUEST.value(),
-                HttpStatus.BAD_REQUEST.getReasonPhrase(),
-                e.getMessage(),
-                LocalDateTime.now()
-        );
-
-        return ResponseEntity.badRequest().body(error);
+        return buildError(HttpStatus.BAD_REQUEST, e.getMessage());
     }
 
     @ExceptionHandler(AuthorizationDeniedException.class)
     public ResponseEntity<ErrorResponse> handleAuthorizationDenied(AuthorizationDeniedException e) {
         log.error("Authorization denied: {}", e.getMessage(), e);
 
-        ErrorResponse error = new ErrorResponse(
-                HttpStatus.FORBIDDEN.value(),
-                HttpStatus.FORBIDDEN.getReasonPhrase(),
-                e.getMessage(),
-                LocalDateTime.now()
-        );
-
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
+        return buildError(HttpStatus.FORBIDDEN, e.getMessage());
     }
 
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ErrorResponse> handleNotFound(NotFoundException e) {
         log.error("Not found: {}", e.getMessage(), e);
 
-        ErrorResponse error = new ErrorResponse(
-                HttpStatus.NOT_FOUND.value(),
-                HttpStatus.NOT_FOUND.getReasonPhrase(),
-                e.getMessage(),
-                LocalDateTime.now()
-        );
-
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+        return buildError(HttpStatus.NOT_FOUND, e.getMessage());
     }
 
     @ExceptionHandler(BusinessRuleViolationException.class)
     public ResponseEntity<ErrorResponse> handleConflict(BusinessRuleViolationException e) {
         log.error("Business rule violation: {}", e.getMessage(), e);
 
-        ErrorResponse error = new ErrorResponse(
-                HttpStatus.CONFLICT.value(),
-                HttpStatus.CONFLICT.getReasonPhrase(),
-                e.getMessage(),
-                LocalDateTime.now()
-        );
-
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+        return buildError(HttpStatus.CONFLICT, e.getMessage());
     }
 
     @ExceptionHandler(ValidationException.class)
     public ResponseEntity<ErrorResponse> handleValidation(ValidationException e) {
         log.error("Domain validation error: {}", e.getMessage(), e);
 
-        ErrorResponse error = new ErrorResponse(
-                HttpStatus.BAD_REQUEST.value(),
-                HttpStatus.BAD_REQUEST.getReasonPhrase(),
-                e.getMessage(),
-                LocalDateTime.now()
-        );
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        return buildError(HttpStatus.BAD_REQUEST, e.getMessage());
     }
 
     @ExceptionHandler(DomainException.class)
     public ResponseEntity<ErrorResponse> handleDomain(DomainException e) {
         log.error("Domain exception: {}", e.getMessage(), e);
 
-        ErrorResponse error = new ErrorResponse(
-                HttpStatus.BAD_REQUEST.value(),
-                HttpStatus.BAD_REQUEST.getReasonPhrase(),
-                e.getMessage(),
-                LocalDateTime.now()
-        );
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        return buildError(HttpStatus.BAD_REQUEST, e.getMessage());
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException e) {
         log.error("Illegal argument: {}", e.getMessage(), e);
 
-        ErrorResponse error = new ErrorResponse(
-                HttpStatus.BAD_REQUEST.value(),
-                HttpStatus.BAD_REQUEST.getReasonPhrase(),
-                e.getMessage(),
-                LocalDateTime.now()
-        );
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        return buildError(HttpStatus.BAD_REQUEST, e.getMessage());
     }
 
     @ExceptionHandler(ImageUploadException.class)
     public ResponseEntity<ErrorResponse> handleImageUpload(ImageUploadException e) {
         log.error("Image upload error: {}", e.getMessage(), e);
 
-        ErrorResponse error = new ErrorResponse(
-                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
-                e.getMessage(),
-                LocalDateTime.now()
-        );
-
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        return buildError(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(Exception e) {
         log.error("Unhandled exception: {}", e.getMessage(), e);
 
-        ErrorResponse error = new ErrorResponse(
-                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
-                "Internal server error: " + e.getMessage(),
-                LocalDateTime.now()
-        );
+        return buildError(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error");
+    }
 
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+    private ResponseEntity<ErrorResponse> buildError(HttpStatus status, String message) {
+        return ResponseEntity.status(status).body(
+                new ErrorResponse(
+                        status.value(),
+                        status.getReasonPhrase(),
+                        message,
+                        LocalDateTime.now()
+                )
+        );
     }
 }
