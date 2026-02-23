@@ -7,6 +7,7 @@ public record ReviewResponse(
         int rating,
         String comment,
         String reviewDate,
+        Long userId,
         String username
 ) {
     public static ReviewResponse from(ReviewDetails reviewDetails) {
@@ -15,6 +16,7 @@ public record ReviewResponse(
                 reviewDetails.rating(),
                 reviewDetails.comment(),
                 reviewDetails.reviewDate().toString(),
+                reviewDetails.userId(),
                 reviewDetails.username()
         );
     }

@@ -7,6 +7,7 @@ public record ReviewDetails(
         int rating,
         String comment,
         LocalDate reviewDate,
+        Long userId,
         String username
 ) {
 }

@@ -55,6 +55,7 @@ public class GetReviewsByMovieUseCaseImpl implements GetReviewsByMovieUseCase {
                         r.getRating().value(),
                         r.getComment().value(),
                         r.getReviewDate().value(),
+                        r.getUserId().value(),
                         userIdToUsername.getOrDefault(r.getUserId(), "Unknown"))
                 )
                 .toList();

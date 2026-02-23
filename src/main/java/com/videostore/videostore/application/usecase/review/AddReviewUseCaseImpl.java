@@ -70,6 +70,7 @@ public class AddReviewUseCaseImpl implements AddReviewUseCase {
                 newReview.getRating().value(),
                 newReview.getComment().value(),
                 newReview.getReviewDate().value(),
+                user.getId().value(),
                 username.value()
         );
     }
