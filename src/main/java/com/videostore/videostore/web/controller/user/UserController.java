@@ -51,7 +51,8 @@ public class UserController {
             @CacheEvict(value = "allUsers", allEntries = true),
             @CacheEvict(value = "rentalsByUser", key = "#userId"),
             @CacheEvict(value = "rentalsByMovie", allEntries = true),
-            @CacheEvict(value = "reviewsByMovie", allEntries = true)
+            @CacheEvict(value = "reviewsByMovie", allEntries = true),
+            @CacheEvict(value = "favourites", allEntries = true)
     })
     public ResponseEntity<Void> removeUser(@PathVariable @Positive Long userId) {
         log.info("Admin requested deletion of user {}", userId);

@@ -127,7 +127,8 @@ public class MovieController {
             @CacheEvict(value = "genres", allEntries = true),
             @CacheEvict(value = "rentalsByUser", allEntries = true),
             @CacheEvict(value = "rentalsByMovie", key = "#movieId"),
-            @CacheEvict(value = "reviewsByMovie", key = "#movieId")
+            @CacheEvict(value = "reviewsByMovie", key = "#movieId"),
+            @CacheEvict(value = "favourites", allEntries = true)
 
     })
     public ResponseEntity<Void> removeMovie(@PathVariable @Positive Long movieId) {
