@@ -64,6 +64,16 @@ public class FavouriteRepositoryImpl implements FavouriteRepository {
         favouriteRepositoryJPA.deleteById(favouriteId.value());
     }
 
+    @Override
+    public void removeAllByUser(UserId userId) {
+        favouriteRepositoryJPA.findAllByUserId(userId.value()).forEach(favouriteRepositoryJPA::delete);
+    }
+
+    @Override
+    public void removeAllMovie(MovieId movieId) {
+        favouriteRepositoryJPA.findAllByMovieId(movieId.value()).forEach(favouriteRepositoryJPA::delete);
+    }
+
     private UserEntity getUserEntity(UserId userId) {
         return userRepositoryJPA.findById(userId.value())
                 .orElseThrow(() -> new UserNotFoundException(userId.value()));

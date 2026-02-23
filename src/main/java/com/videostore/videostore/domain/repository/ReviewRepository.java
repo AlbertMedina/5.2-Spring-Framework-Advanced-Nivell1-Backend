@@ -22,6 +22,10 @@ public interface ReviewRepository {
 
     void removeReview(ReviewId reviewId);
 
+    void removeAllByUser(UserId userId);
+
+    void removeAllByMovie(MovieId movieId);
+
     Optional<RatingSummary> getAverageRatingByMovieId(MovieId movieId);
 
     Map<Long, RatingSummary> getAverageRatingsByMovieIds(List<MovieId> movieIds);

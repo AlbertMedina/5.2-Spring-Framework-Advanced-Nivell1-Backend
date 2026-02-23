@@ -6,8 +6,10 @@ import com.videostore.videostore.domain.exception.conflict.MovieHasActiveRentals
 import com.videostore.videostore.domain.exception.notfound.MovieNotFoundException;
 import com.videostore.videostore.domain.model.movie.Movie;
 import com.videostore.videostore.domain.model.movie.valueobject.MovieId;
+import com.videostore.videostore.domain.repository.FavouriteRepository;
 import com.videostore.videostore.domain.repository.MovieRepository;
 import com.videostore.videostore.domain.repository.RentalRepository;
+import com.videostore.videostore.domain.repository.ReviewRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,11 +21,20 @@ public class RemoveMovieUseCaseImpl implements RemoveMovieUseCase {
 
     private final MovieRepository movieRepository;
     private final RentalRepository rentalRepository;
+    private final ReviewRepository reviewRepository;
+    private final FavouriteRepository favouriteRepository;
     private final Cloudinary cloudinary;
 
-    public RemoveMovieUseCaseImpl(MovieRepository movieRepository, RentalRepository rentalRepository, Cloudinary cloudinary) {
+    public RemoveMovieUseCaseImpl(MovieRepository movieRepository,
+                                  RentalRepository rentalRepository,
+                                  ReviewRepository reviewRepository,
+                                  FavouriteRepository favouriteRepository,
+                                  Cloudinary cloudinary
+    ) {
         this.movieRepository = movieRepository;
         this.rentalRepository = rentalRepository;
+        this.reviewRepository = reviewRepository;
+        this.favouriteRepository = favouriteRepository;
         this.cloudinary = cloudinary;
     }
 
@@ -46,6 +57,8 @@ public class RemoveMovieUseCaseImpl implements RemoveMovieUseCase {
             }
         }
 
+        reviewRepository.removeAllByMovie(id);
+        favouriteRepository.removeAllMovie(id);
         movieRepository.removeMovie(id);
     }
 

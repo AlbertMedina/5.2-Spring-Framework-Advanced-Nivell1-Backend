@@ -68,6 +68,16 @@ public class ReviewRepositoryImpl implements ReviewRepository {
     }
 
     @Override
+    public void removeAllByUser(UserId userId) {
+        reviewRepositoryJPA.findAllByUserId(userId.value()).forEach(reviewRepositoryJPA::delete);
+    }
+
+    @Override
+    public void removeAllByMovie(MovieId movieId) {
+        reviewRepositoryJPA.findAllByMovieId(movieId.value()).forEach(reviewRepositoryJPA::delete);
+    }
+
+    @Override
     public Optional<RatingSummary> getAverageRatingByMovieId(MovieId movieId) {
         Object result = reviewRepositoryJPA.findAverageRatingByMovieId(movieId.value());
 

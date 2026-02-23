@@ -19,4 +19,8 @@ public interface FavouriteRepository {
     Favourite addFavourite(Favourite favourite);
 
     void removeFavourite(FavouriteId favouriteId);
+
+    void removeAllByUser(UserId userId);
+
+    void removeAllMovie(MovieId movieId);
 }

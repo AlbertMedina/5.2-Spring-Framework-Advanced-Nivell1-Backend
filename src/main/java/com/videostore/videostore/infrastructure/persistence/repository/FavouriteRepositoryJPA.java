@@ -7,10 +7,12 @@ import java.util.List;
 import java.util.Optional;
 
 public interface FavouriteRepositoryJPA extends JpaRepository<FavouriteEntity, Long> {
-    
+
     Optional<FavouriteEntity> findByUserIdAndMovieId(Long userId, Long movieId);
 
     boolean existsByUserIdAndMovieId(Long userId, Long movieId);
 
     List<FavouriteEntity> findAllByUserId(Long userId);
+
+    List<FavouriteEntity> findAllByMovieId(Long movieId);
 }

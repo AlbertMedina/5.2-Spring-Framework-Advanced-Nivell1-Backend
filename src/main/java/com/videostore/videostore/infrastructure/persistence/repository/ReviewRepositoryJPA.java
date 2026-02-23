@@ -6,11 +6,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface ReviewRepositoryJPA extends JpaRepository<ReviewEntity, Long> {
 
     boolean existsByUserIdAndMovieId(Long userId, Long movieId);
+
+    List<ReviewEntity> findAllByUserId(Long userId);
 
     List<ReviewEntity> findAllByMovieId(Long movieId);
 
