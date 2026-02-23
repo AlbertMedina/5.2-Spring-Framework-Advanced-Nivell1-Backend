@@ -124,7 +124,11 @@ public class MovieController {
     @PreAuthorize("hasRole('ADMIN')")
     @Caching(evict = {
             @CacheEvict(value = "movies", key = "#movieId"),
-            @CacheEvict(value = "genres", allEntries = true)
+            @CacheEvict(value = "genres", allEntries = true),
+            @CacheEvict(value = "rentalsByUser", allEntries = true),
+            @CacheEvict(value = "rentalsByMovie", key = "#movieId"),
+            @CacheEvict(value = "reviewsByMovie", key = "#movieId")
+
     })
     public ResponseEntity<Void> removeMovie(@PathVariable @Positive Long movieId) {
         log.info("Admin requested to remove movie id {}", movieId);

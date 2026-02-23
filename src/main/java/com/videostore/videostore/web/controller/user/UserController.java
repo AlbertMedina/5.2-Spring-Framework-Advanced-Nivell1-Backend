@@ -48,7 +48,10 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     @Caching(evict = {
             @CacheEvict(value = "users", allEntries = true),
-            @CacheEvict(value = "allUsers", allEntries = true)
+            @CacheEvict(value = "allUsers", allEntries = true),
+            @CacheEvict(value = "rentalsByUser", allEntries = true),
+            @CacheEvict(value = "rentalsByMovie", key = "#movieId"),
+            @CacheEvict(value = "reviewsByMovie", key = "#movieId")
     })
     public ResponseEntity<Void> removeUser(@PathVariable @Positive Long userId) {
         log.info("Admin requested deletion of user {}", userId);
