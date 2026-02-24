@@ -3,32 +3,24 @@
 ## Description
 This project recreates the classic video rental store experience in a digital environment, allowing users to browse, rent, and rate movies. The application supports different user roles, such as regular users and administrators, each with dedicated features to interact with the movie catalog and manage the platform.
 The system focuses on providing an intuitive way to explore content while enforcing role-based access and permissions, ensuring a structured and well-managed movie rental experience.
-
 > This repository contains the Backend (API). The Frontend application can be found in this repository: [videostore-frontend](https://github.com/AlbertMedina/5.2-Spring-Framework-Advanced-Nivell3-Frontend.git)
 
 ## Architecture & Tech Stack
 Built with Java 21 and Spring Boot 3.5.8, this project follows a Hexagonal Architecture approach to keep the core business logic independent from frameworks, infrastructure, and external systems.
 - **Domain Layer**  
   Contains the core business logic and domain models (User, Movie, Rental, Review, and Favourite), fully isolated from infrastructure and framework concerns.
-
 - **Application Layer**  
   Defines use cases and application services, coordinating domain logic through input and output ports.
-
 - **Infrastructure Layer**  
   Implements persistence, security, and external integrations, including database access, JWT authentication, and file handling for movie posters.
-
 - **Persistence**  
   MySQL database accessed through Spring Data JPA, ensuring a clean separation between domain models and data storage.
-
 - **Security**  
   Stateless authentication using JWT, with role-based access control (USER / ADMIN) enforced at the API level.
-
 - **Caching**  
   Application-level caching using Spring Cache to improve performance and reduce database load on frequently accessed resources.
-
 - **Testing**  
   Integration testing using Spring Boot Test and MockMvc, with Testcontainers providing Dockerized database environments to ensure realistic and reproducible test execution.
-
 - **Documentation**  
   Interactive API documentation generated with OpenAPI (Swagger UI), allowing easy exploration and testing of available endpoints.
 
