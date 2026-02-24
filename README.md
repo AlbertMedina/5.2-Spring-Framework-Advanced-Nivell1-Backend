@@ -86,15 +86,6 @@ Built with Java 21 and Spring Boot 3.5.8, this project follows a Hexagonal Archi
 
 > Authentication is handled using JWT. Protected endpoints require the token to be sent in the `Authorization` header as `Bearer <token>`.
 
-## Technologies used
-- Oracle OpenJDK 21.0.8
-- Spring Boot 3.5.8
-- Maven 3.9.11
-- MySQL
-- Docker
-- Swagger
-- IntelliJ IDEA Community Edition
-
 ## Installation
 1. Clone repository (https://github.com/AlbertMedina/5.2-Spring-Framework-Advanced-Nivell3-Backend.git).
 ```
